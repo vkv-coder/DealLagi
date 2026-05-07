@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>DealLagi — Register</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1565C0;
+      --blue2:   #1E88E5;
+      --blue3:   #1976D2;
+      --blueL:   #E3F2FD;
+      --blueM:   #BBDEFB;
+      --bg:      #F0F6FF;
+      --card:    #FFFFFF;
+      --border:  #C9DEFF;
+      --text:    #0D1F3C;
+      --muted:   #5A7BA8;
+      --accent:  #F57F17;
+      --err:     #D32F2F;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(21,101,192,0.10) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 40% at 90% 100%, rgba(30,136,229,0.07) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 420px;
+    }
+
+    /* Floating emojis */
+    .floaters { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .floater  { position: absolute; font-size: 1.6rem; opacity: 0.30; animation: floatUp linear infinite; }
+    .floater:nth-child(1) { left: 5%;  font-size: 1.4rem; animation-duration: 12s; animation-delay: 0s; }
+    .floater:nth-child(2) { left: 15%; font-size: 2rem;   animation-duration: 16s; animation-delay: 2s; }
+    .floater:nth-child(3) { left: 28%; font-size: 1.2rem; animation-duration: 10s; animation-delay: 4s; }
+    .floater:nth-child(4) { left: 42%; font-size: 1.8rem; animation-duration: 14s; animation-delay: 1s; }
+    .floater:nth-child(5) { left: 58%; font-size: 1.3rem; animation-duration: 11s; animation-delay: 3s; }
+    .floater:nth-child(6) { left: 70%; font-size: 2rem;   animation-duration: 15s; animation-delay: 5s; }
+    .floater:nth-child(7) { left: 82%; font-size: 1.5rem; animation-duration: 13s; animation-delay: 0.5s; }
+    .floater:nth-child(8) { left: 92%; font-size: 1.2rem; animation-duration: 9s;  animation-delay: 2.5s; }
+
+    @keyframes floatUp {
+      0%   { transform: translateY(110vh) rotate(0deg);  opacity: 0; }
+      10%  { opacity: 0.30; }
+      90%  { opacity: 0.30; }
+      100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
+    }
+
+    /* Brand */
+    .brand { text-align: center; margin-bottom: 22px; animation: fadeDown 0.6s ease both; }
+    .brand-logo { display: inline-flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+    .logo-icon {
+      width: 56px; height: 56px;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border-radius: 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 30px;
+      box-shadow: 0 4px 20px rgba(21,101,192,0.3);
+    }
+    .brand-name {
+      font-family: 'Baloo 2', cursive;
+      font-size: 2.4rem; font-weight: 800;
+      background: linear-gradient(90deg, var(--blue), var(--blue2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      line-height: 1;
+    }
+    .brand-tag {
+      font-size: 0.95rem; font-weight: 700;
+      font-family: 'Baloo 2', cursive;
+      color: var(--accent);
+    }
+
+    /* Platform pills */
+    .deal-strip {
+      display: flex; justify-content: center; gap: 8px;
+      margin-bottom: 20px; flex-wrap: wrap;
+      animation: fadeDown 0.6s ease 0.1s both;
+    }
+    .deal-pill {
+      background: var(--blueL);
+      border: 1px solid var(--blueM);
+      border-radius: 30px; padding: 5px 13px;
+      font-size: 0.78rem; color: var(--blue3); font-weight: 700;
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px; padding: 26px 22px;
+      box-shadow: 0 4px 24px rgba(21,101,192,0.10);
+      animation: fadeUp 0.6s ease 0.15s both;
+    }
+    .card-title { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+    .card-sub   { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+
+    /* Benefits — only 3 now */
+    .benefits { display: flex; gap: 7px; margin-bottom: 20px; }
+    .benefit {
+      flex: 1;
+      background: var(--blueL);
+      border: 1px solid var(--blueM);
+      border-radius: 12px; padding: 10px 6px;
+      text-align: center; font-size: 0.73rem; color: var(--blue3); font-weight: 700;
+    }
+    .benefit .b-icon { font-size: 1.3rem; display: block; margin-bottom: 4px; }
+
+    /* Fields */
+    .field { margin-bottom: 16px; }
+    label {
+      display: block; font-size: 0.79rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.8px; margin-bottom: 7px;
+    }
+    input, select {
+      width: 100%; background: var(--bg);
+      border: 1.5px solid var(--border); border-radius: 12px;
+      color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: 1rem; padding: 13px 16px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none; -webkit-appearance: none;
+    }
+    input::placeholder { color: var(--muted); opacity: 0.6; }
+    input:focus, select:focus {
+      border-color: var(--blue2);
+      box-shadow: 0 0 0 3px rgba(30,136,229,0.12);
+    }
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾'; position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%); color: var(--muted); pointer-events: none;
+    }
+    select option { background: #fff; color: var(--text); }
+    .mobile-wrap { display: flex; gap: 8px; }
+    .mobile-prefix {
+      background: var(--blueL); border: 1.5px solid var(--blueM);
+      border-radius: 12px; color: var(--blue3); font-size: 1rem;
+      padding: 13px 14px; white-space: nowrap; flex-shrink: 0;
+      font-family: 'Nunito', sans-serif; font-weight: 700;
+    }
+    .mobile-wrap input { flex: 1; }
+
+    /* Error */
+    #err-msg {
+      display: none; color: var(--err); font-size: 0.83rem; font-weight: 600;
+      margin-bottom: 14px; padding: 10px 14px;
+      background: #FFEBEE; border-radius: 10px;
+      border: 1px solid #FFCDD2;
+    }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border: none; border-radius: 14px; color: #fff;
+      font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700;
+      padding: 15px; cursor: pointer;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+      box-shadow: 0 4px 18px rgba(21,101,192,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn:hover   { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(21,101,192,0.45); }
+    .btn:active  { transform: translateY(0); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .spinner {
+      display: none; width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+
+    /* Success */
+    #success-screen { display: none; text-align: center; animation: fadeUp 0.5s ease both; }
+    .success-icon {
+      width: 80px; height: 80px;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 40px; margin: 0 auto 20px;
+      box-shadow: 0 4px 24px rgba(21,101,192,0.3);
+      animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .success-title { font-family: 'Baloo 2', cursive; font-size: 1.7rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+    .success-msg   { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 16px; }
+    .user-badge {
+      display: inline-block;
+      background: var(--blueL); border: 1px solid var(--blueM);
+      border-radius: 30px; padding: 8px 20px;
+      font-weight: 700; color: var(--blue3); font-size: 1rem; margin-bottom: 24px;
+    }
+
+    /* Footer */
+    .footer { text-align: center; margin-top: 18px; font-size: 0.78rem; color: var(--muted); animation: fadeUp 0.6s ease 0.3s both; }
+    .footer a { color: var(--blue2); text-decoration: none; }
+
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+    @keyframes spin     { to { transform: rotate(360deg); } }
+    @keyframes pop      { from { transform: scale(0); } to { transform: scale(1); } }
+  </style>
+</head>
+<body>
+
+<div class="floaters">
+  <div class="floater">🏷️</div>
+  <div class="floater">💰</div>
+  <div class="floater">🛒</div>
+  <div class="floater">🔔</div>
+  <div class="floater">💸</div>
+  <div class="floater">🎯</div>
+  <div class="floater">📦</div>
+  <div class="floater">⚡</div>
+</div>
+
+<div class="wrap">
+
+  <!-- Brand -->
+  <div class="brand">
+    <div class="brand-logo">
+      <div class="logo-icon">🏷️</div>
+      <div class="brand-name">DealLagi</div>
+    </div>
+    <div class="brand-tag">Jab deal lage, DealLagi jaage! 😄</div>
+  </div>
+
+  <!-- Platform pills -->
+  <div class="deal-strip">
+    <div class="deal-pill">🛒 Swiggy Instamart</div>
+    <div class="deal-pill">⚡ Blinkit</div>
+    <div class="deal-pill">🚀 Zepto</div>
+  </div>
+
+  <!-- Reg Card -->
+  <div class="card" id="reg-card">
+    <div style="text-align:right; margin-bottom:14px; padding-bottom:12px; border-bottom:1px solid var(--border);"><span style="font-size:0.85rem; color:var(--muted);">Already registered?</span> <a href="login.html" style="color:var(--blue); font-weight:800; font-size:0.95rem; text-decoration:none;">👉 Login Here</a></div>
+    <div class="card-title">🎉 Join DealLagi Free</div>
+    <div class="card-sub">Get instant alerts when your favourite products go on deal!</div>
+
+    <!-- 3 benefits only -->
+    <div class="benefits">
+      <div class="benefit"><span class="b-icon">🔔</span>Instant Alerts</div>
+      <div class="benefit"><span class="b-icon">💰</span>Real Savings</div>
+      <div class="benefit"><span class="b-icon">🛒</span>Various Platforms</div>
+    </div>
+
+    <div id="err-msg"></div>
+
+    <div class="field">
+      <label>👤 Your Name</label>
+      <input type="text" id="inp-name" placeholder="e.g. Vijay Vora" autocomplete="name" />
+    </div>
+
+    <div class="field">
+      <label>📱 Mobile Number</label>
+      <div class="mobile-wrap">
+        <div class="mobile-prefix">🇮🇳 +91</div>
+        <input type="tel" id="inp-mobile" placeholder="98765 43210" maxlength="10" inputmode="numeric" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>📍 Your City</label>
+      <div class="select-wrap">
+        <select id="inp-city">
+          <option value="1">Vadodara</option>
+        </select>
+      </div>
+    </div>
+
+    <button class="btn" id="btn-register" onclick="handleRegister()">
+      <span id="btn-text">Join DealLagi 🎉</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+  </div>
+
+  <!-- Success -->
+  <div class="card" id="success-screen">
+    <div class="success-icon">🎯</div>
+    <div class="success-title">Deal Lagi! 🎉</div>
+    <div class="success-msg">
+      Welcome to DealLagi!<br/>
+      Ab jab bhi deal aayegi —<br/>
+      <strong style="color:var(--blue2)">hum jaagenge, aap bachayenge! 💰</strong>
+    </div>
+    <div class="user-badge" id="success-name"></div>
+    <button class="btn" onclick="goToDashboard()">Dashboard dekho →</button>
+  </div>
+
+  <div class="footer">
+    By registering you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a><br/>
+    
+  </div>
+
+</div>
+
+<script>
+  const SUPA_URL = 'https://wrzpgultvahxbrgooibn.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
+  const SCHEMA   = 'deallagi';
+
+  function showErr(msg) {
+    const el = document.getElementById('err-msg');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function hideErr() { document.getElementById('err-msg').style.display = 'none'; }
+  function setLoading(on) {
+    document.getElementById('btn-register').disabled = on;
+    document.getElementById('btn-text').textContent = on ? 'Registering...' : 'Join DealLagi 🎉';
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  }
+
+  async function handleRegister() {
+    hideErr();
+    const name   = document.getElementById('inp-name').value.trim();
+    const mobile = document.getElementById('inp-mobile').value.trim();
+    const cityId = parseInt(document.getElementById('inp-city').value);
+
+    if (!name)                    return showErr('Please enter your name.');
+    if (!/^\d{10}$/.test(mobile)) return showErr('Enter a valid 10-digit mobile number.');
+
+    setLoading(true);
+    try {
+      const checkRes = await fetch(
+        `${SUPA_URL}/rest/v1/users?mobile=eq.${mobile}&select=id`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+      );
+      const existing = await checkRes.json();
+      if (existing.length > 0) {
+        setLoading(false);
+        return showErr('This mobile is already registered. Please login.');
+      }
+
+      const res = await fetch(`${SUPA_URL}/rest/v1/users`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({
+          name, mobile, city_id: cityId,
+          plan: 'free',
+          trial_start_date: new Date().toISOString().split('T')[0],
+          sms_active: true,
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) { console.error(data); setLoading(false); return showErr('Registration failed. Please try again.'); }
+
+      const user = data[0];
+      localStorage.setItem('dl_user', JSON.stringify(user));
+      setLoading(false);
+      document.getElementById('reg-card').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+      document.getElementById('success-name').textContent = `👋 ${user.name} · +91 ${mobile}`;
+
+    } catch(e) {
+      console.error(e); setLoading(false);
+      showErr('Network error. Check your connection and try again.');
+    }
+  }
+
+  function goToDashboard() { window.location.href = "dashboard.html"; }
+  function goToLogin()     { window.location.href = "login.html"; }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    // const saved = localStorage.getItem('dl_user');
+    // if (saved) goToDashboard(); // Uncomment when dashboard ready
+  });
+</script>
+</body>
+</html>
