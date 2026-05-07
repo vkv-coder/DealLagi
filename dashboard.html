@@ -51,6 +51,7 @@
       position: relative; z-index: 1;
     }
     .brand-small {
+      position: absolute; left: 50%; transform: translateX(-50%);
       display: flex; align-items: center; gap: 8px;
     }
     .brand-small .logo { font-size: 1.4rem; }
@@ -348,7 +349,7 @@
     try {
       const res = await fetch(
         `${SUPA_URL}/rest/v1/alerts?user_id=eq.${currentUser.id}&select=id`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA } }
       );
       const data = await res.json();
       document.getElementById('stat-alerts').textContent = Array.isArray(data) ? data.length : 0;
@@ -362,7 +363,7 @@
     try {
       const res = await fetch(
         `${SUPA_URL}/rest/v1/user_items?user_id=eq.${currentUser.id}&select=id,active,item_id,platforms`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA } }
       );
       const userItems = await res.json();
 
