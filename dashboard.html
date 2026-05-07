@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>DealLagi — Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1565C0;
+      --blue2:   #1E88E5;
+      --blue3:   #1976D2;
+      --blueL:   #E3F2FD;
+      --blueM:   #BBDEFB;
+      --bg:      #F0F6FF;
+      --card:    #FFFFFF;
+      --border:  #C9DEFF;
+      --text:    #0D1F3C;
+      --muted:   #5A7BA8;
+      --accent:  #F57F17;
+      --err:     #D32F2F;
+      --green:   #2E7D32;
+      --greenL:  #E8F5E9;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 80px;
+    }
+
+    /* ── Top bar ── */
+    .topbar {
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      padding: 18px 20px 24px;
+      position: relative;
+      overflow: hidden;
+    }
+    .topbar::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 80% -20%, rgba(255,255,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .topbar-row {
+      display: flex; align-items: center; justify-content: space-between;
+      position: relative; z-index: 1;
+    }
+    .brand-small {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .brand-small .logo { font-size: 1.4rem; }
+    .brand-small .name {
+      font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800;
+      color: #fff;
+    }
+    .logout-btn {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px; padding: 5px 14px;
+      color: #fff; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: background 0.2s;
+    }
+    .logout-btn:hover { background: rgba(255,255,255,0.3); }
+
+    .welcome-row {
+      margin-top: 14px; position: relative; z-index: 1;
+    }
+    .welcome-text {
+      font-family: 'Baloo 2', cursive; font-size: 1.4rem; font-weight: 700;
+      color: #fff; margin-bottom: 2px;
+    }
+    .welcome-sub { font-size: 0.82rem; color: rgba(255,255,255,0.75); }
+
+    /* ── Stats row ── */
+    .stats-row {
+      display: flex; gap: 12px;
+      padding: 0 16px;
+      margin-top: -20px;
+      margin-bottom: 16px;
+    }
+    .stat-card {
+      flex: 1; background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 14px 12px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(21,101,192,0.10);
+    }
+    .stat-icon  { font-size: 1.5rem; margin-bottom: 4px; }
+    .stat-value {
+      font-family: 'Baloo 2', cursive; font-size: 1.6rem; font-weight: 800;
+      color: var(--blue); line-height: 1;
+    }
+    .stat-label { font-size: 0.72rem; color: var(--muted); font-weight: 700; margin-top: 2px; }
+
+    /* ── Section ── */
+    .section { padding: 0 16px; margin-bottom: 20px; }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: 'Baloo 2', cursive; font-size: 1.05rem; font-weight: 700;
+      color: var(--text);
+    }
+
+    /* ── Add item button ── */
+    .add-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 20px;
+      padding: 6px 14px; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .add-btn:hover { background: var(--blue2); transform: translateY(-1px); }
+
+    /* ── Item cards ── */
+    .item-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+      display: flex; align-items: center; gap: 12px;
+    }
+    .item-emoji { font-size: 1.8rem; flex-shrink: 0; }
+    .item-info  { flex: 1; }
+    .item-name  { font-weight: 700; font-size: 0.95rem; color: var(--text); margin-bottom: 3px; }
+    .item-meta  { font-size: 0.75rem; color: var(--muted); }
+    .item-badge {
+      background: var(--greenL); color: var(--green);
+      border-radius: 20px; padding: 3px 10px;
+      font-size: 0.72rem; font-weight: 700; flex-shrink: 0;
+    }
+    .item-badge.paused {
+      background: #FFF8E1; color: #F57F17;
+    }
+
+    /* Empty state */
+    .empty-state {
+      background: var(--card); border: 1.5px dashed var(--blueM);
+      border-radius: 14px; padding: 28px 20px;
+      text-align: center;
+    }
+    .empty-icon  { font-size: 2.5rem; margin-bottom: 10px; }
+    .empty-title { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .empty-sub   { font-size: 0.82rem; color: var(--muted); margin-bottom: 16px; }
+    .empty-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: var(--blue); color: #fff;
+      border: none; border-radius: 20px;
+      padding: 9px 20px; font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      transition: background 0.2s;
+    }
+    .empty-btn:hover { background: var(--blue2); }
+
+    /* ── Profile card ── */
+    .profile-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 16px;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+    }
+    .profile-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 8px 0; border-bottom: 1px solid var(--border);
+    }
+    .profile-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .profile-icon { font-size: 1.2rem; width: 28px; text-align: center; }
+    .profile-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+    .profile-value { font-size: 0.9rem; color: var(--text); font-weight: 600; }
+
+    /* ── Plan badge ── */
+    .plan-free {
+      display: inline-block;
+      background: var(--blueL); color: var(--blue);
+      border-radius: 20px; padding: 2px 12px;
+      font-size: 0.78rem; font-weight: 700;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center; padding: 20px 16px;
+      font-size: 0.78rem; color: var(--muted);
+      border-top: 1px solid var(--border);
+      margin-top: 10px;
+    }
+    .footer a { color: var(--blue2); text-decoration: none; font-weight: 700; }
+
+    /* ── Loading ── */
+    #loading {
+      position: fixed; inset: 0;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100; flex-direction: column; gap: 12px;
+    }
+    .loader {
+      width: 40px; height: 40px;
+      border: 4px solid var(--blueM);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loader-text { font-family: 'Baloo 2', cursive; color: var(--blue); font-size: 1rem; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fadein { animation: fadeUp 0.5s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- Loading screen -->
+<div id="loading">
+  <div class="loader"></div>
+  <div class="loader-text">Loading DealLagi...</div>
+</div>
+
+<!-- Main content -->
+<div id="main" style="display:none;">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-row">
+      <div class="brand-small">
+        <span class="logo">🏷️</span>
+        <span class="name">DealLagi</span>
+      </div>
+      <button class="logout-btn" onclick="handleLogout()">Logout</button>
+    </div>
+    <div class="welcome-row">
+      <div class="welcome-text">Hi, <span id="user-name">there</span>! 👋</div>
+      <div class="welcome-sub">Jab deal lage, DealLagi jaage! 😄</div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-row fadein">
+    <div class="stat-card">
+      <div class="stat-icon">🔔</div>
+      <div class="stat-value" id="stat-alerts">—</div>
+      <div class="stat-label">Alerts Received</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📦</div>
+      <div class="stat-value" id="stat-items">—</div>
+      <div class="stat-label">Items Tracking</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🏙️</div>
+      <div class="stat-value" id="stat-city">—</div>
+      <div class="stat-label">Your City</div>
+    </div>
+  </div>
+
+  <!-- Tracked Items -->
+  <div class="section fadein">
+    <div class="section-header">
+      <div class="section-title">📦 My Tracked Items</div>
+      <button class="add-btn" onclick="addItem()">➕ Add Item</button>
+    </div>
+    <div id="items-list">
+      <!-- Loaded dynamically -->
+    </div>
+  </div>
+
+  <!-- My Profile -->
+  <div class="section fadein">
+    <div class="section-title" style="margin-bottom:12px;">👤 My Profile</div>
+    <div class="profile-card">
+      <div class="profile-row">
+        <div class="profile-icon">👤</div>
+        <div>
+          <div class="profile-label">NAME</div>
+          <div class="profile-value" id="profile-name">—</div>
+        </div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-icon">📱</div>
+        <div>
+          <div class="profile-label">MOBILE</div>
+          <div class="profile-value" id="profile-mobile">—</div>
+        </div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-icon">🏙️</div>
+        <div>
+          <div class="profile-label">CITY</div>
+          <div class="profile-value" id="profile-city">—</div>
+        </div>
+      </div>
+      <div class="profile-row">
+        <div class="profile-icon">⭐</div>
+        <div>
+          <div class="profile-label">PLAN</div>
+          <div class="profile-value"><span class="plan-free" id="profile-plan">Free</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    Need help? <a href="mailto:vkvcoder.support@gmail.com">vkvcoder.support@gmail.com</a><br/>
+    <span style="font-size:0.72rem; margin-top:4px; display:block;">© 2026 DealLagi · All rights reserved</span>
+  </div>
+
+</div>
+
+<script>
+  const SUPA_URL = 'https://wrzpgultvahxbrgooibn.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
+  const SCHEMA   = 'deallagi';
+
+  const CITIES = { 1: 'Vadodara', 2: 'Ahmedabad', 3: 'Surat', 4: 'Rajkot', 5: 'Gandhinagar',
+                   6: 'Mumbai', 7: 'Delhi', 8: 'Bangalore', 9: 'Pune', 10: 'Hyderabad' };
+
+  let currentUser = null;
+
+  async function init() {
+    const saved = localStorage.getItem('dl_user');
+    if (!saved) { window.location.href = 'login.html'; return; }
+    currentUser = JSON.parse(saved);
+
+    // Fill name
+    document.getElementById('user-name').textContent   = currentUser.name.split(' ')[0];
+    document.getElementById('profile-name').textContent  = currentUser.name;
+    document.getElementById('profile-mobile').textContent = '+91 ' + currentUser.mobile;
+    document.getElementById('profile-city').textContent  = CITIES[currentUser.city_id] || 'Vadodara';
+    document.getElementById('profile-plan').textContent  = (currentUser.plan || 'free').charAt(0).toUpperCase() + (currentUser.plan || 'free').slice(1);
+    document.getElementById('stat-city').textContent    = (CITIES[currentUser.city_id] || 'VDR').substring(0, 3).toUpperCase();
+
+    // Load stats + items in parallel
+    await Promise.all([loadAlertCount(), loadUserItems()]);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').style.display    = 'block';
+  }
+
+  // ── Alert count ──────────────────────────────────────────
+  async function loadAlertCount() {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/alerts?user_id=eq.${currentUser.id}&select=id`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+      );
+      const data = await res.json();
+      document.getElementById('stat-alerts').textContent = Array.isArray(data) ? data.length : 0;
+    } catch(e) {
+      document.getElementById('stat-alerts').textContent = '0';
+    }
+  }
+
+  // ── User items ───────────────────────────────────────────
+  async function loadUserItems() {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/user_items?user_id=eq.${currentUser.id}&select=id,active,item_id,platforms`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+      );
+      const userItems = await res.json();
+
+      document.getElementById('stat-items').textContent = Array.isArray(userItems) ? userItems.length : 0;
+
+      const container = document.getElementById('items-list');
+
+      if (!Array.isArray(userItems) || userItems.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <div class="empty-title">No items tracked yet!</div>
+            <div class="empty-sub">Add products you want to track and get deal alerts</div>
+            <button class="empty-btn" onclick="addItem()">➕ Add Your First Item</button>
+          </div>`;
+        return;
+      }
+
+      // Fetch item names
+      const itemIds = userItems.map(u => u.item_id).join(',');
+      const itemsRes = await fetch(
+        `${SUPA_URL}/rest/v1/items?id=in.(${itemIds})&select=id,name`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+      );
+      const items = await itemsRes.json();
+      const itemMap = {};
+      if (Array.isArray(items)) items.forEach(i => itemMap[i.id] = i.name);
+
+      const emojis = ['🛒','📦','🏷️','🍦','🧃','🍕','🧴','🥤'];
+      container.innerHTML = userItems.map((ui, idx) => `
+        <div class="item-card">
+          <div class="item-emoji">${emojis[idx % emojis.length]}</div>
+          <div class="item-info">
+            <div class="item-name">${itemMap[ui.item_id] || 'Unknown Item'}</div>
+            <div class="item-meta">Platforms: ${ui.platforms || 'Swiggy'}</div>
+          </div>
+          <div class="item-badge ${ui.active ? '' : 'paused'}">${ui.active ? '✅ Active' : '⏸ Paused'}</div>
+        </div>`).join('');
+
+    } catch(e) {
+      document.getElementById('stat-items').textContent = '0';
+      document.getElementById('items-list').innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <div class="empty-title">No items tracked yet!</div>
+          <div class="empty-sub">Add products you want to track and get deal alerts</div>
+          <button class="empty-btn" onclick="addItem()">➕ Add Your First Item</button>
+        </div>`;
+    }
+  }
+
+  function addItem() {
+    // Will navigate to add-item.html once built
+    alert('Add Item screen coming soon! 🚀');
+  }
+
+  function handleLogout() {
+    if (confirm('Logout from DealLagi?')) {
+      localStorage.removeItem('dl_user');
+      window.location.href = 'login.html';
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
