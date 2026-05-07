@@ -368,7 +368,7 @@
     try {
       const res = await fetch(
         `${SUPA_URL}/rest/v1/user_items?user_id=eq.${currentUser.id}&select=id,active,item_id,platforms`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA } }
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
       );
       const userItems = res.ok ? await res.json() : [];
 
