@@ -54,9 +54,9 @@
       position: absolute; left: 50%; transform: translateX(-50%);
       display: flex; align-items: center; gap: 8px;
     }
-    .brand-small .logo { font-size: 1.4rem; }
+    .brand-small .logo { font-size: 1.1rem; }
     .brand-small .name {
-      font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800;
+      font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 800;
       color: #fff;
     }
     .logout-btn {
@@ -338,7 +338,7 @@
     document.getElementById('stat-city').textContent    = (CITIES[currentUser.city_id] || 'VDR').substring(0, 3).toUpperCase();
 
     // Load stats + items in parallel
-    await Promise.all([loadAlertCount(), loadUserItems()]);
+    await loadUserItems();
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main').style.display    = 'block';
@@ -346,12 +346,17 @@
 
   // ── Alert count ──────────────────────────────────────────
   async function loadAlertCount() {
+    document.getElementById('stat-alerts').textContent = '0';
+  }
+
+  async function loadAlertCountForItems(itemIds) {
+    if (!itemIds || itemIds.length === 0) { document.getElementById('stat-alerts').textContent = '0'; return; }
     try {
       const res = await fetch(
-        `${SUPA_URL}/rest/v1/alerts?user_id=eq.${currentUser.id}&select=id`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA } }
+        `${SUPA_URL}/rest/v1/alerts?item_id=in.(${itemIds.join(',')})&select=id`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
       );
-      const data = await res.json();
+      const data = res.ok ? await res.json() : [];
       document.getElementById('stat-alerts').textContent = Array.isArray(data) ? data.length : 0;
     } catch(e) {
       document.getElementById('stat-alerts').textContent = '0';
@@ -365,11 +370,15 @@
         `${SUPA_URL}/rest/v1/user_items?user_id=eq.${currentUser.id}&select=id,active,item_id,platforms`,
         { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA } }
       );
-      const userItems = await res.json();
+      const userItems = res.ok ? await res.json() : [];
 
       document.getElementById('stat-items').textContent = Array.isArray(userItems) ? userItems.length : 0;
 
       const container = document.getElementById('items-list');
+
+      // Load alert count for user's items
+      const itemIdList = Array.isArray(userItems) ? userItems.map(u => u.item_id) : [];
+      loadAlertCountForItems(itemIdList);
 
       if (!Array.isArray(userItems) || userItems.length === 0) {
         container.innerHTML = `
