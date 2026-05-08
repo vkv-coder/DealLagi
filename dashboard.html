@@ -372,7 +372,7 @@
   async function loadUserItems() {
     try {
       const res = await fetch(
-        `${SUPA_URL}/rest/v1/user_items?user_id=eq.${currentUser.id}&select=id,active,item_id&limit=50`,
+        `${SUPA_URL}/rest/v1/user_items?user_id=eq.${currentUser.id}&select=id,active,item_id,item_name,platform&limit=50`,
         { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
       );
       const userItems = res.ok ? await res.json() : [];
@@ -404,15 +404,14 @@
       );
       const items = await itemsRes.json();
       const itemMap = {};
-      if (Array.isArray(items)) items.forEach(i => itemMap[i.id] = i.name);
 
       const emojis = ['🛒','📦','🏷️','🍦','🧃','🍕','🧴','🥤'];
       container.innerHTML = userItems.map((ui, idx) => `
         <div class="item-card">
           <div class="item-emoji">${emojis[idx % emojis.length]}</div>
           <div class="item-info">
-            <div class="item-name">${itemMap[ui.item_id] || 'Unknown Item'}</div>
-            <div class="item-meta">Platform: Swiggy Instamart</div>
+            <div class="item-name">${ui.item_name || 'Unknown Item'}</div>
+            <div class="item-meta">Platform: ${ui.platform || 'Swiggy Instamart'}</div>
           </div>
           <div class="item-badge ${ui.active ? '' : 'paused'}">${ui.active ? '✅ Active' : '⏸ Paused'}</div>
         </div>`).join('');
