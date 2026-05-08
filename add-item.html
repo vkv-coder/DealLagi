@@ -160,12 +160,12 @@
       accent-color: var(--blue); flex-shrink: 0;
       padding: 0; border: none; background: none;
     }
-    .check-item:has(input:checked) {
-      border-color: var(--blue);
-      background: #1E88E5;
-      color: #ffffff;
-      font-weight: 700;
-      box-shadow: 0 0 0 3px rgba(30,136,229,0.25);
+    .check-item.selected {
+      border-color: var(--blue) !important;
+      background: #1E88E5 !important;
+      color: #ffffff !important;
+      font-weight: 700 !important;
+      box-shadow: 0 0 0 3px rgba(30,136,229,0.25) !important;
     }
     /* Hint */
     .hint {
@@ -430,6 +430,36 @@
     }
   }
 
+  async function notifyAdmin(itemName, platform, notes) {
+    const BOT_TOKEN = '8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg';
+    const CHAT_ID   = '8507770594';
+    const msg = `🆕 *New DealLagi Item Request!*
+
+` +
+                `👤 *User:* ${currentUser.name}
+` +
+                `📱 *Mobile:* +91 ${currentUser.mobile}
+` +
+                `🏙️ *City:* ${currentUser.city_id === 1 ? 'Vadodara' : 'Other'}
+
+` +
+                `🏷️ *Item:* ${itemName}
+` +
+                `🛒 *Platform:* ${platform}
+` +
+                `📝 *Notes:* ${notes || 'None'}
+
+` +
+                `✅ Approve in Supabase → deallagi.user_items`;
+    try {
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: CHAT_ID, text: msg, parse_mode: 'Markdown' })
+      });
+    } catch(e) { console.log('Telegram notify failed', e); }
+  }
+
   async function handleSubmit() {
     hideErr();
     const name     = document.getElementById('inp-name').value.trim();
@@ -468,6 +498,11 @@
         return showErr('Submission failed. Please try again.');
       }
 
+      // Notify admin via Telegram
+      const tgMsg = `🆕 DealLagi New Item Request!%0A%0A👤 ${currentUser.name} (${currentUser.mobile})%0A🏷️ Item: ${name}%0A🛒 Platform: ${platform}%0A📝 Notes: ${notes || 'None'}%0A%0A✅ Approve in Supabase → deallagi.user_items`;
+      fetch(`https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=${tgMsg}`)
+        .catch(e => console.log('TG notify failed', e));
+
       setLoading(false);
       document.getElementById('form-card').style.display = 'none';
       document.getElementById('success-screen').style.display = 'block';
@@ -478,6 +513,13 @@
       showErr('Network error. Please try again.');
     }
   }
+
+  // Toggle selected class on platform checkboxes
+  document.querySelectorAll('.plat-cb').forEach(cb => {
+    cb.addEventListener('change', () => {
+      cb.closest('.check-item').classList.toggle('selected', cb.checked);
+    });
+  });
 
   window.addEventListener('DOMContentLoaded', init);
 </script>
