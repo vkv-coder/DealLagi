@@ -147,20 +147,25 @@
       display: flex; flex-direction: column; gap: 10px;
     }
     .check-item {
-      display: flex; align-items: center; gap: 10px;
-      background: var(--bg); border: 1.5px solid var(--border);
-      border-radius: 12px; padding: 12px 16px;
-      cursor: pointer; transition: border-color 0.2s, background 0.2s;
-      font-size: 0.95rem; font-weight: 600;
+      display: flex; align-items: center; gap: 12px;
+      background: var(--bg); border: 2px solid var(--border);
+      border-radius: 12px; padding: 13px 16px;
+      cursor: pointer; transition: all 0.2s;
+      font-size: 0.95rem; font-weight: 600; color: var(--text);
+      user-select: none;
     }
     .check-item:hover { border-color: var(--blue2); background: var(--blueL); }
     .check-item input[type="checkbox"] {
-      width: 18px; height: 18px; cursor: pointer;
+      width: 20px; height: 20px; cursor: pointer;
       accent-color: var(--blue); flex-shrink: 0;
       padding: 0; border: none; background: none;
     }
     .check-item:has(input:checked) {
-      border-color: var(--blue2); background: var(--blueL);
+      border-color: var(--blue);
+      background: var(--blueL);
+      color: var(--blue);
+      font-weight: 700;
+      box-shadow: 0 0 0 3px rgba(30,136,229,0.15);
     }
     /* Hint */
     .hint {
@@ -379,10 +384,21 @@
       const items = res.ok ? await res.json() : [];
       currentItemCount = Array.isArray(items) ? items.length : 0;
 
+      // Count platform slots used
+      let platformSlotsUsed = 0;
+      if (Array.isArray(items)) {
+        items.forEach(item => {
+          const plats = item.platform ? item.platform.split(',').length : 1;
+          platformSlotsUsed += plats;
+        });
+      }
+      const MAX_PLATFORM_SLOTS = MAX_ITEMS * 3; // 9 total
+
       // Update slot bar
       const pct = (currentItemCount / MAX_ITEMS) * 100;
       document.getElementById('slots-fill').style.width = pct + '%';
-      document.getElementById('slots-text').textContent = `${currentItemCount} of ${MAX_ITEMS} slots used`;
+      document.getElementById('slots-text').textContent = `${currentItemCount} of ${MAX_ITEMS} items used`;
+      document.getElementById('platform-slots-text').innerHTML = `Platform slots: <strong>${platformSlotsUsed} of ${MAX_PLATFORM_SLOTS}</strong> used`;
 
       // Show limit card if full
       if (currentItemCount >= MAX_ITEMS) {
