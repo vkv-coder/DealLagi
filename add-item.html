@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>DealLagi — Add Item</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1565C0;
+      --blue2:   #1E88E5;
+      --blue3:   #1976D2;
+      --blueL:   #E3F2FD;
+      --blueM:   #BBDEFB;
+      --bg:      #F0F6FF;
+      --card:    #FFFFFF;
+      --border:  #C9DEFF;
+      --text:    #0D1F3C;
+      --muted:   #5A7BA8;
+      --accent:  #F57F17;
+      --err:     #D32F2F;
+      --green:   #2E7D32;
+      --greenL:  #E8F5E9;
+      --greenM:  #A5D6A7;
+      --orange:  #E65100;
+      --orangeL: #FFF3E0;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    /* Top bar */
+    .topbar {
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      padding: 16px 20px 20px;
+      position: relative; overflow: hidden;
+    }
+    .topbar::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 80% 80% at 80% -20%, rgba(255,255,255,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .topbar-row {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      position: relative; z-index: 1;
+    }
+    .back-btn {
+      background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 20px; padding: 5px 14px;
+      color: #fff; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; font-family: 'Nunito', sans-serif;
+      text-decoration: none; display: inline-block;
+    }
+    .topbar-title {
+      font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 800;
+      color: #fff; text-align: center;
+    }
+
+    .wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
+
+    /* Slot indicator */
+    .slots-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+      display: flex; align-items: center; gap: 14px;
+    }
+    .slots-icon { font-size: 2rem; }
+    .slots-info { flex: 1; }
+    .slots-title { font-weight: 700; font-size: 0.9rem; color: var(--text); margin-bottom: 6px; }
+    .slots-bar {
+      background: var(--blueL); border-radius: 20px;
+      height: 8px; overflow: hidden; margin-bottom: 4px;
+    }
+    .slots-fill {
+      height: 100%; border-radius: 20px;
+      background: linear-gradient(90deg, var(--blue), var(--blue2));
+      transition: width 0.4s ease;
+    }
+    .slots-text { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+
+    /* Limit reached */
+    .limit-card {
+      display: none;
+      background: var(--orangeL);
+      border: 1px solid #FFCC80;
+      border-radius: 16px; padding: 20px;
+      text-align: center; margin-bottom: 20px;
+    }
+    .limit-icon  { font-size: 2.5rem; margin-bottom: 8px; }
+    .limit-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; color: var(--orange); margin-bottom: 4px; }
+    .limit-sub   { font-size: 0.83rem; color: #BF360C; }
+
+    /* Form card */
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px; padding: 22px;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+      margin-bottom: 20px;
+    }
+    .form-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .form-sub   { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+
+    .field { margin-bottom: 16px; }
+    label {
+      display: block; font-size: 0.79rem; font-weight: 700;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 0.8px; margin-bottom: 7px;
+    }
+    input, select, textarea {
+      width: 100%; background: var(--bg);
+      border: 1.5px solid var(--border); border-radius: 12px;
+      color: var(--text); font-family: 'Nunito', sans-serif;
+      font-size: 1rem; padding: 13px 16px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none; -webkit-appearance: none;
+    }
+    input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.6; }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--blue2);
+      box-shadow: 0 0 0 3px rgba(30,136,229,0.12);
+    }
+    textarea { resize: none; height: 80px; }
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: '▾'; position: absolute; right: 14px; top: 50%;
+      transform: translateY(-50%); color: var(--muted); pointer-events: none;
+    }
+    select option { background: #fff; color: var(--text); }
+
+    /* Hint */
+    .hint {
+      background: var(--blueL); border: 1px solid var(--blueM);
+      border-radius: 10px; padding: 10px 14px;
+      font-size: 0.78rem; color: var(--blue3);
+      margin-top: 6px; line-height: 1.5;
+    }
+
+    /* Error */
+    #err-msg {
+      display: none; color: var(--err); font-size: 0.83rem; font-weight: 600;
+      margin-bottom: 14px; padding: 10px 14px;
+      background: #FFEBEE; border-radius: 10px;
+      border: 1px solid #FFCDD2;
+    }
+
+    /* Button */
+    .btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border: none; border-radius: 14px; color: #fff;
+      font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700;
+      padding: 15px; cursor: pointer;
+      box-shadow: 0 4px 18px rgba(21,101,192,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+    }
+    .btn:hover   { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .spinner {
+      display: none; width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff;
+      border-radius: 50%; animation: spin 0.7s linear infinite;
+    }
+
+    /* Current items */
+    .current-title { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
+    .item-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 12px 16px;
+      margin-bottom: 8px; display: flex; align-items: center; gap: 12px;
+      box-shadow: 0 1px 4px rgba(21,101,192,0.06);
+    }
+    .item-emoji { font-size: 1.5rem; flex-shrink: 0; }
+    .item-info  { flex: 1; }
+    .item-name  { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+    .item-meta  { font-size: 0.73rem; color: var(--muted); margin-top: 2px; }
+    .item-status {
+      font-size: 0.72rem; font-weight: 700; padding: 3px 10px;
+      border-radius: 20px; flex-shrink: 0;
+    }
+    .status-pending  { background: var(--orangeL); color: var(--orange); }
+    .status-active   { background: var(--greenL);  color: var(--green); }
+
+    /* Success screen */
+    #success-screen {
+      display: none; text-align: center;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 16px; padding: 28px 22px;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+      margin-bottom: 20px;
+    }
+    .success-icon {
+      width: 70px; height: 70px;
+      background: linear-gradient(135deg, var(--blue), var(--blue2));
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 36px; margin: 0 auto 16px;
+      box-shadow: 0 4px 20px rgba(21,101,192,0.3);
+      animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    .success-title { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
+    .success-msg   { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .btn-outline {
+      width: 100%; background: transparent;
+      border: 2px solid var(--blue2); border-radius: 14px;
+      color: var(--blue); font-family: 'Baloo 2', cursive;
+      font-size: 1rem; font-weight: 700; padding: 13px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .btn-outline:hover { background: var(--blueL); }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pop  { from { transform: scale(0); } to { transform: scale(1); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fadein { animation: fadeUp 0.4s ease both; }
+  </style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-row">
+    <div><a href="dashboard.html" class="back-btn">← Back</a></div>
+    <div class="topbar-title">➕ Add Item</div>
+    <div></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Slot indicator -->
+  <div class="slots-card fadein">
+    <div class="slots-icon">📦</div>
+    <div class="slots-info">
+      <div class="slots-title">Your Tracking Slots</div>
+      <div class="slots-bar">
+        <div class="slots-fill" id="slots-fill" style="width:0%"></div>
+      </div>
+      <div class="slots-text" id="slots-text">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Limit reached -->
+  <div class="limit-card" id="limit-card">
+    <div class="limit-icon">🚫</div>
+    <div class="limit-title">Slot Limit Reached!</div>
+    <div class="limit-sub">You are already tracking 3 items — the maximum for free plan.<br/>Remove an existing item to add a new one.</div>
+  </div>
+
+  <!-- Success screen -->
+  <div id="success-screen">
+    <div class="success-icon">🎯</div>
+    <div class="success-title">Item Submitted!</div>
+    <div class="success-msg">
+      Your item request has been received!<br/>
+      We'll review and activate it within 24 hours.<br/>
+      <strong style="color:var(--blue)">You'll get an SMS when it goes live! 📱</strong>
+    </div>
+    <button class="btn-outline" onclick="window.location.href='dashboard.html'">← Go to Dashboard</button>
+  </div>
+
+  <!-- Add item form -->
+  <div class="form-card fadein" id="form-card">
+    <div class="form-title">🔍 Tell us what to track</div>
+    <div class="form-sub">Enter the exact product name as shown on the app</div>
+
+    <div id="err-msg"></div>
+
+    <div class="field">
+      <label>🏷️ Product Name</label>
+      <input type="text" id="inp-name" placeholder="e.g. Amul Gold Vanilla Ice Cream 1L" />
+      <div class="hint">💡 Type the exact name as you see it on Swiggy/Blinkit/Zepto</div>
+    </div>
+
+    <div class="field">
+      <label>🛒 Platform</label>
+      <div class="select-wrap">
+        <select id="inp-platform">
+          <option value="">-- Select Platform --</option>
+          <option value="Swiggy">🛒 Swiggy Instamart</option>
+          <option value="Blinkit">⚡ Blinkit</option>
+          <option value="Zepto">🚀 Zepto</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>📝 Any Notes (optional)</label>
+      <textarea id="inp-notes" placeholder="e.g. The 1 litre tub only, not the 500ml one"></textarea>
+    </div>
+
+    <button class="btn" id="btn-submit" onclick="handleSubmit()">
+      <span id="btn-text">Submit Item Request 🎯</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+  </div>
+
+  <!-- Current tracked items -->
+  <div id="current-items-section" style="display:none;">
+    <div class="current-title">📦 Currently Tracking</div>
+    <div id="current-items-list"></div>
+  </div>
+
+</div>
+
+<script>
+  const SUPA_URL = 'https://wrzpgultvahxbrgooibn.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
+  const SCHEMA   = 'deallagi';
+  const MAX_ITEMS = 3;
+
+  let currentUser = null;
+  let currentItemCount = 0;
+
+  function showErr(msg) {
+    const el = document.getElementById('err-msg');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function hideErr() { document.getElementById('err-msg').style.display = 'none'; }
+  function setLoading(on) {
+    document.getElementById('btn-submit').disabled = on;
+    document.getElementById('btn-text').textContent = on ? 'Submitting...' : 'Submit Item Request 🎯';
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  }
+
+  async function init() {
+    const saved = localStorage.getItem('dl_user');
+    if (!saved) { window.location.href = 'login.html'; return; }
+    currentUser = JSON.parse(saved);
+    await loadCurrentItems();
+  }
+
+  async function loadCurrentItems() {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/user_items?user_id=eq.${currentUser.id}&select=id,active,item_name,platform,notes,created_at`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+      );
+      const items = res.ok ? await res.json() : [];
+      currentItemCount = Array.isArray(items) ? items.length : 0;
+
+      // Update slot bar
+      const pct = (currentItemCount / MAX_ITEMS) * 100;
+      document.getElementById('slots-fill').style.width = pct + '%';
+      document.getElementById('slots-text').textContent = `${currentItemCount} of ${MAX_ITEMS} slots used`;
+
+      // Show limit card if full
+      if (currentItemCount >= MAX_ITEMS) {
+        document.getElementById('limit-card').style.display = 'block';
+        document.getElementById('form-card').style.display = 'none';
+      }
+
+      // Show current items
+      if (currentItemCount > 0) {
+        document.getElementById('current-items-section').style.display = 'block';
+        const emojis = ['🛒','📦','🏷️','🍦','🧃'];
+        document.getElementById('current-items-list').innerHTML = items.map((item, i) => `
+          <div class="item-card">
+            <div class="item-emoji">${emojis[i % emojis.length]}</div>
+            <div class="item-info">
+              <div class="item-name">${item.item_name || 'Unknown'}</div>
+              <div class="item-meta">${item.platform || 'Swiggy'} · Added ${new Date(item.created_at).toLocaleDateString('en-IN')}</div>
+            </div>
+            <div class="item-status ${item.active ? 'status-active' : 'status-pending'}">
+              ${item.active ? '✅ Active' : '⏳ Pending'}
+            </div>
+          </div>`).join('');
+      }
+
+    } catch(e) {
+      console.error(e);
+      document.getElementById('slots-text').textContent = '0 of 3 slots used';
+    }
+  }
+
+  async function handleSubmit() {
+    hideErr();
+    const name     = document.getElementById('inp-name').value.trim();
+    const platform = document.getElementById('inp-platform').value;
+    const notes    = document.getElementById('inp-notes').value.trim();
+
+    if (!name)     return showErr('Please enter the product name.');
+    if (!platform) return showErr('Please select a platform.');
+    if (currentItemCount >= MAX_ITEMS) return showErr('You have reached the maximum of 3 items.');
+
+    setLoading(true);
+    try {
+      const res = await fetch(`${SUPA_URL}/rest/v1/user_items`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify({
+          user_id:   currentUser.id,
+          item_name: name,
+          platform:  platform,
+          notes:     notes || null,
+          active:    false,  // pending admin approval
+          city_id:   currentUser.city_id,
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        console.error(data);
+        setLoading(false);
+        return showErr('Submission failed. Please try again.');
+      }
+
+      setLoading(false);
+      document.getElementById('form-card').style.display = 'none';
+      document.getElementById('success-screen').style.display = 'block';
+
+    } catch(e) {
+      console.error(e);
+      setLoading(false);
+      showErr('Network error. Please try again.');
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
