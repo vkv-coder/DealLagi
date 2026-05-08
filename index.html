@@ -234,9 +234,21 @@
 
 <script>
   // Auto redirect if already logged in
+  // No auto-redirect on landing page
+  // User should always see Sign Up / Sign In options
   window.addEventListener('DOMContentLoaded', () => {
     const saved = localStorage.getItem('dl_user');
-    if (saved) window.location.href = 'dashboard.html';
+    if (saved) {
+      // Show a "Go to Dashboard" button instead of auto-redirecting
+      const wrap = document.querySelector('.buttons');
+      const dashBtn = document.createElement('a');
+      dashBtn.href = 'dashboard.html';
+      dashBtn.className = 'btn-signup';
+      dashBtn.style.background = 'linear-gradient(135deg, #2E7D32, #43A047)';
+      dashBtn.style.marginTop = '4px';
+      dashBtn.textContent = '📊 Go to My Dashboard';
+      wrap.appendChild(dashBtn);
+    }
   });
 </script>
 </body>
