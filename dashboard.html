@@ -301,10 +301,6 @@
 
     // Fill name
     document.getElementById('user-name').textContent   = currentUser.name.split(' ')[0];
-    document.getElementById('profile-name').textContent  = currentUser.name;
-    document.getElementById('profile-mobile').textContent = '+91 ' + currentUser.mobile;
-    document.getElementById('profile-city').textContent  = CITIES[currentUser.city_id] || 'Vadodara';
-    document.getElementById('profile-plan').textContent  = (currentUser.plan || 'free').charAt(0).toUpperCase() + (currentUser.plan || 'free').slice(1);
     document.getElementById('stat-city').textContent    = (CITIES[currentUser.city_id] || 'VDR').substring(0, 3).toUpperCase();
 
     // Load stats + items in parallel
