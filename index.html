@@ -1,255 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>DealLagi — Smart Deal Alerts</title>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --blue:    #1565C0;
-      --blue2:   #1E88E5;
-      --blue3:   #1976D2;
-      --blueL:   #E3F2FD;
-      --blueM:   #BBDEFB;
-      --bg:      #F0F6FF;
-      --card:    #FFFFFF;
-      --border:  #C9DEFF;
-      --text:    #0D1F3C;
-      --muted:   #5A7BA8;
-      --accent:  #F57F17;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DealLagi — अब कोई डील न छूटे!</title>
+<meta name="description" content="Smart price alerts for Swiggy Instamart, Blinkit & Zepto. Get instant mobile alerts on major grocery discounts.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;700&family=Hind:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --orange:#FF8C00;
+  --orange-dark:#E65100;
+  --blue:#1565C0;
+  --blue-dark:#0D47A1;
+  --blue-light:#E3F2FD;
+  --navy:#1A237E;
+  --text:#1A1A2E;
+  --muted:#546E7A;
+  --white:#fff;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Hind',sans-serif;color:var(--text);background:#fff;overflow-x:hidden}
+h1,h2,h3,.brand{font-family:'Baloo 2',sans-serif}
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(0,0,0,0.08);padding:0.6rem 1.5rem;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{font-family:'Baloo 2',sans-serif;font-size:1.3rem;font-weight:700;text-decoration:none}
+.nav-brand .d{color:var(--orange)}
+.nav-brand .l{color:var(--blue)}
+.nav-btns{display:flex;gap:10px}
+.btn-nav-signup{background:var(--orange);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Hind',sans-serif}
+.btn-nav-signin{background:var(--blue);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Hind',sans-serif}
 
-    body {
-      font-family: 'Nunito', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 24px 16px;
-      overflow-x: hidden;
-    }
+/* HERO */
+.hero{background:linear-gradient(135deg,#E3F2FD 0%,#FFF8E1 50%,#F3E5F5 100%);padding:6rem 1.5rem 4.5rem;text-align:center;position:relative;overflow:hidden;min-height:580px}
+.hero-glow1{position:absolute;top:-60px;left:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(255,140,0,0.2) 0%,transparent 70%);pointer-events:none}
+.hero-glow2{position:absolute;bottom:-80px;right:-40px;width:260px;height:260px;background:radial-gradient(circle,rgba(100,100,255,0.15) 0%,transparent 70%);pointer-events:none}
+.float{position:absolute;font-weight:500;pointer-events:none;animation:floatUp 9s infinite linear;font-family:'Baloo 2',sans-serif}
+@keyframes floatUp{0%{transform:translateY(0) rotate(-6deg);opacity:0}10%{opacity:1}80%{opacity:0.9}100%{transform:translateY(-500px) rotate(6deg);opacity:0}}
+.f1{left:3%;top:70%;animation-delay:0s;font-size:14px;color:#E65100}
+.f2{left:10%;top:75%;animation-delay:1.4s;font-size:13px;color:#1565C0}
+.f3{left:20%;top:80%;animation-delay:2.7s;font-size:12px;color:#2E7D32}
+.f4{right:4%;top:72%;animation-delay:0.9s;font-size:14px;color:#6A1B9A}
+.f5{right:15%;top:78%;animation-delay:2.2s;font-size:13px;color:#C62828}
+.f6{right:27%;top:83%;animation-delay:3.5s;font-size:12px;color:#00838F}
+.f7{left:37%;top:79%;animation-delay:4.3s;font-size:14px;color:#E65100}
+.f8{left:53%;top:85%;animation-delay:2.9s;font-size:13px;color:#1565C0}
+.f9{left:67%;top:73%;animation-delay:4.0s;font-size:12px;color:#558B2F}
+.f10{left:45%;top:88%;animation-delay:1.0s;font-size:13px;color:#6A1B9A}
 
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(21,101,192,0.12) 0%, transparent 70%),
-        radial-gradient(ellipse 40% 40% at 90% 100%, rgba(30,136,229,0.07) 0%, transparent 60%);
-      pointer-events: none; z-index: 0;
-    }
+.logo-wrap{width:88px;height:88px;background:var(--orange);border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;position:relative;z-index:2;box-shadow:0 8px 24px rgba(255,140,0,0.3)}
+.logo-wrap svg{width:44px;height:44px;fill:#fff}
+.hero-brand{font-size:3rem;font-weight:700;margin-bottom:0.25rem;position:relative;z-index:2;line-height:1}
+.hero-brand .d{color:var(--orange)}
+.hero-brand .l{color:var(--blue)}
+.tagline-en{font-size:1rem;color:var(--orange-dark);font-weight:500;margin-bottom:0.4rem;position:relative;z-index:2;font-family:'Baloo 2',sans-serif}
+.tagline-hi{font-size:1.3rem;color:var(--navy);font-weight:700;margin-bottom:0.25rem;position:relative;z-index:2;font-family:'Baloo 2',sans-serif;line-height:1.4}
+.hero-sub{font-size:0.9rem;color:var(--muted);margin-bottom:1.8rem;position:relative;z-index:2;line-height:1.6}
+.plat-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:2rem;position:relative;z-index:2}
+.plat-chip{background:rgba(255,255,255,0.8);border:1px solid rgba(0,0,0,0.12);border-radius:20px;padding:6px 14px;font-size:12px;color:#37474F;display:flex;align-items:center;gap:6px}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;position:relative;z-index:2}
+.btn-orange{background:var(--orange);color:#fff;border:none;border-radius:12px;padding:14px 34px;font-size:15px;font-weight:500;cursor:pointer;font-family:'Hind',sans-serif;box-shadow:0 4px 14px rgba(255,140,0,0.4)}
+.btn-blue{background:var(--blue);color:#fff;border:none;border-radius:12px;padding:14px 32px;font-size:15px;font-weight:500;cursor:pointer;font-family:'Hind',sans-serif;box-shadow:0 4px 14px rgba(21,101,192,0.3)}
 
-    /* Floating emojis */
-    .floaters { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
-    .floater  { position: absolute; font-size: 1.6rem; opacity: 0.30; animation: floatUp linear infinite; }
-    .floater:nth-child(1) { left: 5%;  font-size: 1.4rem; animation-duration: 12s; animation-delay: 0s; }
-    .floater:nth-child(2) { left: 15%; font-size: 2rem;   animation-duration: 16s; animation-delay: 2s; }
-    .floater:nth-child(3) { left: 28%; font-size: 1.2rem; animation-duration: 10s; animation-delay: 4s; }
-    .floater:nth-child(4) { left: 42%; font-size: 1.8rem; animation-duration: 14s; animation-delay: 1s; }
-    .floater:nth-child(5) { left: 58%; font-size: 1.3rem; animation-duration: 11s; animation-delay: 3s; }
-    .floater:nth-child(6) { left: 70%; font-size: 2rem;   animation-duration: 15s; animation-delay: 5s; }
-    .floater:nth-child(7) { left: 82%; font-size: 1.5rem; animation-duration: 13s; animation-delay: 0.5s; }
-    .floater:nth-child(8) { left: 92%; font-size: 1.2rem; animation-duration: 9s;  animation-delay: 2.5s; }
+/* STAT BAR */
+.stat-bar{background:var(--orange);padding:1rem 1.5rem;display:flex;justify-content:center;gap:2.5rem;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-size:1.4rem;font-weight:700;color:#fff;font-family:'Baloo 2',sans-serif}
+.stat-l{font-size:11px;color:#FFE0B2;margin-top:1px}
 
-    @keyframes floatUp {
-      0%   { transform: translateY(110vh) rotate(0deg);  opacity: 0; }
-      10%  { opacity: 0.30; }
-      90%  { opacity: 0.30; }
-      100% { transform: translateY(-10vh) rotate(20deg); opacity: 0; }
-    }
+/* MODAL OVERLAY */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.active{display:flex}
+.modal{background:#fff;border-radius:20px;padding:2rem;width:100%;max-width:420px;position:relative;max-height:90vh;overflow-y:auto}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);line-height:1}
+.modal-brand{text-align:center;margin-bottom:1.25rem}
+.modal-brand .d{color:var(--orange);font-family:'Baloo 2',sans-serif;font-size:1.4rem;font-weight:700}
+.modal-brand .l{color:var(--blue);font-family:'Baloo 2',sans-serif;font-size:1.4rem;font-weight:700}
+.modal h2{font-size:1.1rem;font-weight:500;color:var(--text);text-align:center;margin-bottom:0.25rem}
+.modal .modal-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:1.25rem;line-height:1.5}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:12px;font-weight:500;color:var(--muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px}
+.form-group input,.form-group select{width:100%;border:1px solid #DCEEFB;border-radius:10px;padding:10px 14px;font-size:14px;color:var(--text);font-family:'Hind',sans-serif;background:#FAFCFF;outline:none}
+.form-group input:focus,.form-group select:focus{border-color:var(--blue);background:#fff}
+.form-group .hint{font-size:11px;color:#90A4AE;margin-top:4px}
+.btn-submit{width:100%;background:var(--orange);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;font-family:'Hind',sans-serif;margin-top:0.5rem}
+.btn-submit.blue{background:var(--blue)}
+.modal-switch{text-align:center;margin-top:1rem;font-size:13px;color:var(--muted)}
+.modal-switch a{color:var(--blue);cursor:pointer;text-decoration:none;font-weight:500}
+.success-box{background:#E8F5E9;border:1px solid #A5D6A7;border-radius:12px;padding:1.25rem;text-align:center;display:none}
+.success-box .success-icon{font-size:2.5rem;margin-bottom:0.5rem}
+.success-box h3{font-size:1rem;font-weight:500;color:#1B5E20;margin-bottom:0.4rem}
+.success-box p{font-size:13px;color:#2E7D32;line-height:1.6}
+.error-msg{background:#FFEBEE;border:1px solid #FFCDD2;border-radius:8px;padding:0.6rem 1rem;font-size:13px;color:#C62828;margin-bottom:0.75rem;display:none}
 
-    .wrap {
-      position: relative; z-index: 1;
-      width: 100%; max-width: 420px;
-      text-align: center;
-    }
+/* SECTIONS */
+.sec{padding:2.5rem 1.5rem;max-width:680px;margin:0 auto}
+.lbl{font-size:11px;font-weight:500;color:var(--orange);letter-spacing:1.2px;text-transform:uppercase;text-align:center;margin-bottom:0.4rem}
+.ttl{font-size:1.3rem;font-weight:500;color:var(--text);text-align:center;margin-bottom:0.35rem;font-family:'Baloo 2',sans-serif}
+.stl{font-size:13px;color:var(--muted);text-align:center;margin-bottom:1.75rem;line-height:1.6}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:14px}
+.step{background:#fff;border:1px solid #E0E0E0;border-radius:var(--radius);padding:1.25rem;text-align:center}
+.snum{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 0.85rem;font-size:20px;font-weight:700;font-family:'Baloo 2',sans-serif}
+.snum.s1{background:#FFF3E0;color:#E65100}
+.snum.s2{background:#E8EAF6;color:#3949AB}
+.snum.s3{background:#E8F5E9;color:#2E7D32}
+.step h3{font-size:13px;font-weight:500;color:var(--text);margin-bottom:0.35rem;font-family:'Baloo 2',sans-serif}
+.step p{font-size:12px;color:var(--muted);line-height:1.65}
 
-    /* Brand */
-    .brand { margin-bottom: 28px; animation: fadeDown 0.6s ease both; }
-    .logo-icon {
-      width: 80px; height: 80px;
-      background: linear-gradient(135deg, var(--blue), var(--blue2));
-      border-radius: 24px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 42px;
-      margin: 0 auto 16px;
-      box-shadow: 0 6px 28px rgba(21,101,192,0.35);
-      animation: pop 0.5s cubic-bezier(0.34,1.56,0.64,1) 0.2s both;
-    }
-    .brand-name {
-      font-family: 'Baloo 2', cursive;
-      font-size: 2.8rem; font-weight: 800;
-      background: linear-gradient(90deg, var(--blue), var(--blue2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      line-height: 1; margin-bottom: 8px;
-    }
-    .brand-tag {
-      font-size: 1rem; font-weight: 700;
-      font-family: 'Baloo 2', cursive;
-      color: var(--accent); margin-bottom: 6px;
-    }
-    .brand-sub {
-      font-size: 0.85rem; color: var(--muted);
-    }
+/* FEATURES */
+.feat-bg{background:#F0F7FF;padding:2.5rem 1.5rem}
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:14px;max-width:680px;margin:0 auto}
+.feat{background:#fff;border-radius:var(--radius);padding:1.25rem;border:1px solid #BBDEFB}
+.ficon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:0.75rem;font-size:22px}
+.ficon.a{background:#FFF3E0;color:#E65100}
+.ficon.b{background:#E8EAF6;color:#3949AB}
+.ficon.c{background:#E8F5E9;color:#2E7D32}
+.ficon.d{background:#FCE4EC;color:#C62828}
+.feat h3{font-size:13px;font-weight:500;color:var(--navy);margin-bottom:0.3rem;font-family:'Baloo 2',sans-serif}
+.feat p{font-size:12px;color:var(--muted);line-height:1.6}
 
-    /* Platform pills */
-    .deal-strip {
-      display: flex; justify-content: center; gap: 8px;
-      margin-bottom: 32px; flex-wrap: wrap;
-      animation: fadeUp 0.6s ease 0.2s both;
-    }
-    .deal-pill {
-      background: var(--blueL); border: 1px solid var(--blueM);
-      border-radius: 30px; padding: 5px 13px;
-      font-size: 0.78rem; color: var(--blue3); font-weight: 700;
-    }
+/* PLATFORMS */
+.plat-bg{background:var(--navy);padding:2.5rem 1.5rem}
+.plat-inner{max-width:680px;margin:0 auto}
+.plat-grid{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:1.5rem}
+.plat-card{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.18);border-radius:var(--radius);padding:1.2rem 1.6rem;text-align:center;min-width:130px}
+.pname{font-size:13px;font-weight:500;color:#E3F2FD;margin-top:8px;font-family:'Baloo 2',sans-serif}
+.live-tag{font-size:11px;background:#1B5E20;color:#A5D6A7;border-radius:10px;padding:2px 10px;display:inline-block;margin-top:4px}
+.soon-tag{font-size:11px;color:#90CAF9;margin-top:4px;display:block}
 
-    /* Feature row */
-    .features {
-      display: flex; gap: 10px; margin-bottom: 32px;
-      animation: fadeUp 0.6s ease 0.25s both;
-    }
-    .feature {
-      flex: 1; background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px; padding: 14px 8px;
-      text-align: center;
-      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
-    }
-    .feature-icon  { font-size: 1.6rem; margin-bottom: 6px; }
-    .feature-label { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+/* COMING SOON */
+.cgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:1.25rem}
+.cpill{background:#F8F9FF;border:1px solid #E8EAF6;border-radius:10px;padding:12px;text-align:center;font-size:12px;color:var(--muted)}
+.cpill .ci{display:block;font-size:22px;color:var(--orange);margin-bottom:6px}
 
-    /* Buttons */
-    .buttons { display: flex; flex-direction: column; gap: 14px; animation: fadeUp 0.6s ease 0.3s both; }
+/* FAQ */
+.faq-bg{background:#FFF8E1;padding:2.5rem 1.5rem}
+.faq-inner{max-width:680px;margin:0 auto}
+.faqlist{display:flex;flex-direction:column;gap:10px;margin-top:1.25rem}
+.faqitem{background:#fff;border:1px solid #FFE082;border-radius:12px;padding:1rem 1.25rem}
+.faqq{font-size:13px;font-weight:500;color:var(--navy);margin-bottom:0.35rem;display:flex;align-items:center;gap:8px;font-family:'Baloo 2',sans-serif}
+.faqq .qi{color:var(--orange);font-size:16px;flex-shrink:0}
+.faqa{font-size:12px;color:var(--muted);line-height:1.65;padding-left:24px}
 
-    .btn-signup {
-      width: 100%;
-      background: linear-gradient(135deg, var(--blue), var(--blue2));
-      border: none; border-radius: 16px; color: #fff;
-      font-family: 'Baloo 2', cursive; font-size: 1.15rem; font-weight: 700;
-      padding: 17px; cursor: pointer;
-      box-shadow: 0 4px 20px rgba(21,101,192,0.4);
-      transition: transform 0.15s, box-shadow 0.15s;
-      text-decoration: none; display: block;
-    }
-    .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 6px 28px rgba(21,101,192,0.5); }
+/* CONTACT */
+.contact-sec{background:#fff;padding:2rem 1.5rem;text-align:center}
+.contact-card{background:#F0F7FF;border:1px solid #BBDEFB;border-radius:var(--radius);padding:1.5rem;display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:1.25rem;max-width:400px;margin-left:auto;margin-right:auto}
+.contact-card .ci{font-size:32px;color:var(--orange)}
+.contact-card p{font-size:13px;color:var(--muted);line-height:1.6}
+.contact-card a{font-size:14px;font-weight:500;color:var(--orange);text-decoration:none}
 
-    .btn-signin {
-      width: 100%;
-      background: var(--card);
-      border: 2px solid var(--blue2);
-      border-radius: 16px; color: var(--blue);
-      font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700;
-      padding: 15px; cursor: pointer;
-      transition: background 0.2s, transform 0.15s;
-      text-decoration: none; display: block;
-    }
-    .btn-signin:hover { background: var(--blueL); transform: translateY(-1px); }
+/* FOOTER */
+.footer{background:var(--navy);padding:2.5rem 1.5rem;text-align:center}
+.footer h2{color:#fff;font-size:1.5rem;font-weight:700;margin-bottom:0.5rem;font-family:'Baloo 2',sans-serif}
+.footer p{color:#90CAF9;font-size:14px;margin-bottom:1.75rem;line-height:1.6}
+.footer-links{display:flex;justify-content:center;gap:20px;margin-top:1.5rem;flex-wrap:wrap}
+.footer-links a{font-size:12px;color:#7986CB;text-decoration:none}
+.divider{height:1px;background:#eee}
 
-    .signin-note {
-      font-size: 0.78rem; color: var(--muted);
-      margin-top: 6px; font-style: italic;
-    }
-
-    /* Footer */
-    .footer {
-      text-align: center; margin-top: 28px;
-      font-size: 0.75rem; color: var(--muted);
-      animation: fadeUp 0.6s ease 0.4s both;
-    }
-    .footer a { color: var(--blue2); text-decoration: none; }
-
-    @keyframes fadeDown { from { opacity:0; transform:translateY(-20px); } to { opacity:1; transform:translateY(0); } }
-    @keyframes fadeUp   { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
-    @keyframes pop      { from { transform: scale(0.5); opacity:0; } to { transform: scale(1); opacity:1; } }
-  </style>
+/* SVG ICONS */
+.icon-tag{display:inline-block}
+</style>
 </head>
 <body>
 
-<div class="floaters">
-  <div class="floater">🏷️</div>
-  <div class="floater">💰</div>
-  <div class="floater">🛒</div>
-  <div class="floater">🔔</div>
-  <div class="floater">💸</div>
-  <div class="floater">🎯</div>
-  <div class="floater">📦</div>
-  <div class="floater">⚡</div>
+<!-- NAV -->
+<nav>
+  <a class="nav-brand" href="#"><span class="d">Deal</span><span class="l">Lagi</span></a>
+  <div class="nav-btns">
+    <button class="btn-nav-signup" onclick="openSignup()">Sign up free</button>
+    <button class="btn-nav-signin" onclick="openSignin()">Sign in</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow1"></div>
+  <div class="hero-glow2"></div>
+  <span class="float f1">बचत करो!</span>
+  <span class="float f2">💰 Deal!</span>
+  <span class="float f3">सस्ता मिला</span>
+  <span class="float f4">🛒 Alert!</span>
+  <span class="float f5">discount!</span>
+  <span class="float f6">₹₹ saved</span>
+  <span class="float f7">ऑफर!</span>
+  <span class="float f8">🔔 ping!</span>
+  <span class="float f9">सेल!</span>
+  <span class="float f10">मस्त डील!</span>
+
+  <div class="logo-wrap">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58s1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41s-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/></svg>
+  </div>
+  <div class="hero-brand"><span class="d">Deal</span> <span class="l">Lagi</span></div>
+  <p class="tagline-en">Jab deal lage, DealLagi jaage!</p>
+  <p class="tagline-hi">अब कोई डील न छूटे,<br>अब कोई दिल न टूटे!</p>
+  <p class="hero-sub">Smart price alerts for quick commerce — never miss a discount on your groceries.</p>
+  <div class="plat-row">
+    <span class="plat-chip">🛒 Swiggy Instamart</span>
+    <span class="plat-chip">⚡ Blinkit</span>
+    <span class="plat-chip">🚀 Zepto</span>
+  </div>
 </div>
 
-<div class="wrap">
+<!-- STAT BAR -->
+<div class="stat-bar">
+  <div class="stat"><div class="stat-n">3+</div><div class="stat-l">Platforms</div></div>
+  <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Free to start</div></div>
+  <div class="stat"><div class="stat-n">Instant</div><div class="stat-l">Mobile alerts</div></div>
+</div>
 
-  <!-- Brand -->
-  <div class="brand">
-    <div class="logo-icon">🏷️</div>
-    <div class="brand-name">DealLagi</div>
-    <div class="brand-tag">Jab deal lage, DealLagi jaage! 😄</div>
-    <div class="brand-sub">Smart price alerts for quick commerce</div>
-  </div>
-
-  <!-- Platforms -->
-  <div class="deal-strip">
-    <div class="deal-pill">🛒 Swiggy Instamart</div>
-    <div class="deal-pill">⚡ Blinkit</div>
-    <div class="deal-pill">🚀 Zepto</div>
-  </div>
-
-  <!-- Features -->
-  <div class="features">
-    <div class="feature">
-      <div class="feature-icon">🔔</div>
-      <div class="feature-label">Instant Alerts</div>
+<!-- HOW IT WORKS -->
+<div class="sec">
+  <p class="lbl">How it works</p>
+  <p class="ttl">Three steps to smarter grocery shopping</p>
+  <p class="stl">You choose. We watch. You save.</p>
+  <div class="steps">
+    <div class="step">
+      <div class="snum s1">1</div>
+      <h3>Choose items & platforms</h3>
+      <p>Pick grocery items you buy and select which platform(s) you want tracked.</p>
     </div>
-    <div class="feature">
-      <div class="feature-icon">💰</div>
-      <div class="feature-label">Real Savings</div>
+    <div class="step">
+      <div class="snum s2">2</div>
+      <h3>We watch prices</h3>
+      <p>DealLagi monitors prices on your chosen platforms periodically for major discounts.</p>
     </div>
-    <div class="feature">
-      <div class="feature-icon">🛒</div>
-      <div class="feature-label">Various Platforms</div>
+    <div class="step">
+      <div class="snum s3">3</div>
+      <h3>Alert on your mobile</h3>
+      <p>The moment a major discount is found, you get an instant alert on your mobile.</p>
     </div>
   </div>
+</div>
 
-  <!-- Buttons -->
-  <div class="buttons">
-    <a href="register.html" class="btn-signup">🎉 Sign Up — It's Free!</a>
+<div class="divider"></div>
 
-    <div>
-      <a href="login.html" class="btn-signin">🔓 Sign In</a>
-      <div class="signin-note">Already registered? Login here</div>
+<!-- FEATURES -->
+<div class="feat-bg">
+  <div style="max-width:680px;margin:0 auto">
+    <p class="lbl">Features</p>
+    <p class="ttl">Built for the smart Indian shopper</p>
+    <p class="stl">Pay less on everyday groceries — effortlessly.</p>
+    <div class="feats">
+      <div class="feat">
+        <div class="ficon a">🔔</div>
+        <h3>Instant mobile alerts</h3>
+        <p>Get notified the moment a major discount hits your item. No delay, no spam.</p>
+      </div>
+      <div class="feat">
+        <div class="ficon b">⚙️</div>
+        <h3>Your items, your platforms</h3>
+        <p>You choose exactly which items to track and on which platforms.</p>
+      </div>
+      <div class="feat">
+        <div class="ficon c">📱</div>
+        <h3>Works on any device</h3>
+        <p>PWA — install on your phone or use on desktop. No app store needed.</p>
+      </div>
+      <div class="feat">
+        <div class="ficon d">🛡️</div>
+        <h3>Free to get started</h3>
+        <p>Sign up free. Plans based on items and platforms you choose.</p>
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="footer">
-    <a href="#">Terms</a> &nbsp;·&nbsp; <a href="#">Privacy Policy</a> &nbsp;·&nbsp;
+<!-- PLATFORMS -->
+<div class="plat-bg">
+  <div class="plat-inner">
+    <p class="lbl" style="text-align:center;color:#FFB74D">Platforms</p>
+    <p class="ttl" style="color:#fff">अपना platform चुनो</p>
+    <p class="stl" style="color:#90CAF9">Select one or more when you add your items.</p>
+    <div class="plat-grid">
+      <div class="plat-card">
+        <div style="font-size:34px">🛒</div>
+        <div class="pname">Swiggy Instamart</div>
+        <span class="live-tag">Live now</span>
+      </div>
+      <div class="plat-card">
+        <div style="font-size:34px">⚡</div>
+        <div class="pname">Blinkit</div>
+        <span class="soon-tag">Coming soon</span>
+      </div>
+      <div class="plat-card">
+        <div style="font-size:34px">🚀</div>
+        <div class="pname">Zepto</div>
+        <span class="soon-tag">Coming soon</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- COMING SOON -->
+<div class="sec">
+  <p class="lbl" style="text-align:center">Roadmap</p>
+  <p class="ttl" style="text-align:center">Coming soon</p>
+  <p class="stl">Features we're working on next.</p>
+  <div class="cgrid">
+    <div class="cpill"><span class="ci">📈</span>Price history</div>
+    <div class="cpill"><span class="ci">👥</span>Wishlist sharing</div>
+    <div class="cpill"><span class="ci">⚡</span>Blinkit live</div>
+    <div class="cpill"><span class="ci">🚀</span>Zepto live</div>
+  </div>
+</div>
+
+<!-- FAQ -->
+<div class="faq-bg">
+  <div class="faq-inner">
+    <p class="lbl" style="text-align:center">FAQ</p>
+    <p class="ttl" style="text-align:center">अक्सर पूछे जाने वाले सवाल</p>
+    <div class="faqlist">
+      <div class="faqitem">
+        <p class="faqq"><span class="qi">❓</span>Is DealLagi free?</p>
+        <p class="faqa">Yes! Sign up is free. Plans are based on the number of items and platforms you track — pay only for what you need.</p>
+      </div>
+      <div class="faqitem">
+        <p class="faqq"><span class="qi">❓</span>How will I get alerts?</p>
+        <p class="faqa">When a major discount is detected on your item, you receive an instant alert directly on your mobile.</p>
+      </div>
+      <div class="faqitem">
+        <p class="faqq"><span class="qi">❓</span>Can I choose which platforms to track?</p>
+        <p class="faqa">Yes! When you add an item, you select the platform(s) you want monitored for that item.</p>
+      </div>
+      <div class="faqitem">
+        <p class="faqq"><span class="qi">❓</span>How soon will my account be activated?</p>
+        <p class="faqa">After signing up, our team reviews your registration within 24 hours. You'll be notified by email once your account is active.</p>
+      </div>
+      <div class="faqitem">
+        <p class="faqq"><span class="qi">❓</span>Which cities are supported?</p>
+        <p class="faqa">DealLagi works in all major Indian cities where Swiggy Instamart, Blinkit, and Zepto operate.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT -->
+<div class="contact-sec">
+  <p class="lbl">Contact us</p>
+  <p class="ttl">हम यहाँ हैं — मदद के लिए</p>
+  <div class="contact-card">
+    <span class="ci" style="font-size:32px;color:var(--orange)">📧</span>
+    <p>Have a question or feedback? Write to us anytime.</p>
+    <a href="mailto:vkvcoder.support@gmail.com">vkvcoder.support@gmail.com</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <h2>आज ही शुरू करो — मुफ़्त में!</h2>
+  <p>Sign up free. Pick your items and platforms.<br>Get alerted when deals hit.</p>
+  <button class="btn-orange" onclick="openSignup()" style="font-size:16px;padding:14px 38px;display:inline-flex;align-items:center;gap:8px">🎉 Sign up — it's free</button>
+  <div class="footer-links">
+    <a href="#">Terms</a>
+    <a href="#">Privacy policy</a>
     <a href="mailto:vkvcoder.support@gmail.com">Support</a>
   </div>
+</div>
 
+<!-- SIGNUP MODAL -->
+<div class="modal-overlay" id="signupModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">✕</button>
+    <div class="modal-brand"><span class="d">Deal</span><span class="l">Lagi</span></div>
+    <h2>Create your free account</h2>
+    <p class="modal-sub">Fill in your details. We'll review and activate your account within 24 hours.</p>
+    <div class="error-msg" id="signupError"></div>
+    <div id="signupForm">
+      <div class="form-group">
+        <label>Full name</label>
+        <input type="text" id="reg_name" placeholder="Your name">
+      </div>
+      <div class="form-group">
+        <label>Mobile number</label>
+        <input type="tel" id="reg_mobile" placeholder="10-digit mobile number">
+      </div>
+      <div class="form-group">
+        <label>Email address</label>
+        <input type="email" id="reg_email" placeholder="you@email.com">
+        <div class="hint">We'll notify you when your account is activated.</div>
+      </div>
+      <div class="form-group">
+        <label>City</label>
+        <input type="text" id="reg_city" placeholder="Your city">
+      </div>
+      <div class="form-group">
+        <label>Telegram ID <span style="color:#90A4AE;font-weight:400">(optional)</span></label>
+        <input type="text" id="reg_telegram" placeholder="@yourusername">
+        <div class="hint">Required to receive deal alerts. You can add this later.</div>
+      </div>
+      <button class="btn-submit" id="signupBtn" onclick="handleSignup()">🎉 Register now</button>
+    </div>
+    <div class="success-box" id="signupSuccess">
+      <div class="success-icon">🎉</div>
+      <h3>धन्यवाद! You're registered!</h3>
+      <p>Your registration has been received. Our team will review and activate your account within <strong>24 hours</strong>.<br><br>You will be notified on your <strong>email and mobile</strong> once your account is active. Stay tuned for deals!</p>
+    </div>
+    <div class="modal-switch">Already have an account? <a onclick="switchToSignin()">Sign in here</a></div>
+  </div>
+</div>
+
+<!-- SIGNIN MODAL -->
+<div class="modal-overlay" id="signinModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModals()">✕</button>
+    <div class="modal-brand"><span class="d">Deal</span><span class="l">Lagi</span></div>
+    <h2>Welcome back!</h2>
+    <p class="modal-sub">Sign in to your DealLagi account.</p>
+    <div class="error-msg" id="signinError"></div>
+    <div class="form-group">
+      <label>Mobile number</label>
+      <input type="tel" id="login_mobile" placeholder="10-digit mobile number">
+    </div>
+    <div class="form-group">
+      <label>PIN</label>
+      <input type="password" id="login_pin" placeholder="Enter your PIN" maxlength="6">
+    </div>
+    <button class="btn-submit blue" id="signinBtn" onclick="handleSignin()">🔐 Sign in</button>
+    <div class="modal-switch">New to DealLagi? <a onclick="switchToSignup()">Sign up free</a></div>
+  </div>
 </div>
 
 <script>
-  // Auto redirect if already logged in
-  // No auto-redirect on landing page
-  // User should always see Sign Up / Sign In options
-  window.addEventListener('DOMContentLoaded', () => {
-    const saved = localStorage.getItem('dl_user');
-    if (saved) {
-      // Show a "Go to Dashboard" button instead of auto-redirecting
-      const wrap = document.querySelector('.buttons');
-      const dashBtn = document.createElement('a');
-      dashBtn.href = 'dashboard.html';
-      dashBtn.className = 'btn-signup';
-      dashBtn.style.background = 'linear-gradient(135deg, #2E7D32, #43A047)';
-      dashBtn.style.marginTop = '4px';
-      dashBtn.textContent = '📊 Go to My Dashboard';
-      wrap.appendChild(dashBtn);
+const SUPABASE_URL = 'https://wrzpgultvahxbrgooibn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbxSwOwfd63JNYRGzmXFcm9uqWzB0DKwiRkibvsyYqsn5YH7Dke5xikh8_gZfxdfdTJpFA/exec';
+
+function openSignup(){document.getElementById('signupModal').classList.add('active')}
+function openSignin(){document.getElementById('signinModal').classList.add('active')}
+function closeModals(){document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.remove('active'))}
+function switchToSignin(){closeModals();openSignin()}
+function switchToSignup(){closeModals();openSignup()}
+
+document.querySelectorAll('.modal-overlay').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)closeModals()})
+});
+
+async function handleSignup(){
+  const name=document.getElementById('reg_name').value.trim();
+  const mobile=document.getElementById('reg_mobile').value.trim();
+  const email=document.getElementById('reg_email').value.trim();
+  const city=document.getElementById('reg_city').value.trim();
+  const telegram=document.getElementById('reg_telegram').value.trim();
+  const errEl=document.getElementById('signupError');
+  errEl.style.display='none';
+
+  if(!name||!mobile||!email||!city){errEl.textContent='Please fill all required fields.';errEl.style.display='block';return}
+  if(!/^[0-9]{10}$/.test(mobile)){errEl.textContent='Please enter a valid 10-digit mobile number.';errEl.style.display='block';return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){errEl.textContent='Please enter a valid email address.';errEl.style.display='block';return}
+
+  const btn=document.getElementById('signupBtn');
+  btn.textContent='Registering...';btn.disabled=true;
+
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal'},
+      body:JSON.stringify({name,mobile,email,city,telegram_id:telegram||null,status:'pending',created_at:new Date().toISOString()})
+    });
+    if(res.ok||res.status===201){
+      document.getElementById('signupForm').style.display='none';
+      document.getElementById('signupSuccess').style.display='block';
+      document.querySelector('#signupModal .modal-switch').style.display='none';
+      // notify via GAS
+      fetch(GAS_URL+'?action=newRegistration&name='+encodeURIComponent(name)+'&mobile='+encodeURIComponent(mobile)+'&email='+encodeURIComponent(email)+'&city='+encodeURIComponent(city)+'&telegram='+encodeURIComponent(telegram)).catch(()=>{});
+    } else {
+      const data=await res.json();
+      if(data&&data.message&&data.message.includes('duplicate')){
+        errEl.textContent='This mobile number is already registered.';
+      } else {
+        errEl.textContent='Registration failed. Please try again.';
+      }
+      errEl.style.display='block';
+      btn.textContent='🎉 Register now';btn.disabled=false;
     }
-  });
+  } catch(e){
+    errEl.textContent='Network error. Please check your connection and try again.';
+    errEl.style.display='block';
+    btn.textContent='🎉 Register now';btn.disabled=false;
+  }
+}
+
+async function handleSignin(){
+  const mobile=document.getElementById('login_mobile').value.trim();
+  const pin=document.getElementById('login_pin').value.trim();
+  const errEl=document.getElementById('signinError');
+  errEl.style.display='none';
+
+  if(!mobile||!pin){errEl.textContent='Please enter your mobile number and PIN.';errEl.style.display='block';return}
+
+  const btn=document.getElementById('signinBtn');
+  btn.textContent='Signing in...';btn.disabled=true;
+
+  try{
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}&select=*`,{
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+    });
+    const data=await res.json();
+    if(!data||data.length===0){
+      errEl.textContent='Mobile number not found. Please sign up first.';
+      errEl.style.display='block';
+      btn.textContent='🔐 Sign in';btn.disabled=false;
+      return;
+    }
+    const user=data[0];
+    if(user.status==='pending'){
+      errEl.textContent='Your account is pending approval. You will be notified once activated.';
+      errEl.style.display='block';
+      btn.textContent='🔐 Sign in';btn.disabled=false;
+      return;
+    }
+    if(user.pin!==pin){
+      errEl.textContent='Incorrect PIN. Please try again.';
+      errEl.style.display='block';
+      btn.textContent='🔐 Sign in';btn.disabled=false;
+      return;
+    }
+    // success — redirect to dashboard
+    localStorage.setItem('dl_user', JSON.stringify({id:user.id,name:user.name,mobile:user.mobile}));
+    window.location.href='/dashboard.html';
+  } catch(e){
+    errEl.textContent='Network error. Please try again.';
+    errEl.style.display='block';
+    btn.textContent='🔐 Sign in';btn.disabled=false;
+  }
+}
 </script>
 </body>
 </html>
