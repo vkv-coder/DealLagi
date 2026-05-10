@@ -387,6 +387,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
         <input type="text" id="reg_city" placeholder="Your city">
       </div>
       <div class="form-group">
+        <label>Pincode</label>
+        <input type="tel" id="reg_pincode" placeholder="6-digit pincode" maxlength="6">
+      </div>
+      <div class="form-group">
         <label>Telegram ID <span style="color:#90A4AE;font-weight:400">(optional)</span></label>
         <input type="text" id="reg_telegram" placeholder="@yourusername">
         <div class="hint">Required to receive deal alerts. You can add this later.</div>
@@ -426,7 +430,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 <script>
 const SUPABASE_URL = 'https://wrzpgultvahxbrgooibn.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
-const GAS_URL = 'https://script.google.com/macros/s/AKfycbxSwOwfd63JNYRGzmXFcm9uqWzB0DKwiRkibvsyYqsn5YH7Dke5xikh8_gZfxdfdTJpFA/exec';
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbwP9GGYb9bipFi7aSQ8xEAzZn-QNpZ3x-egOc_z7zyZDci6rnHrCpzJkDjlUXdz0oil/exec';
 
 function openSignup(){document.getElementById('signupModal').classList.add('active')}
 function openSignin(){document.getElementById('signinModal').classList.add('active')}
@@ -443,12 +447,14 @@ async function handleSignup(){
   const mobile=document.getElementById('reg_mobile').value.trim();
   const email=document.getElementById('reg_email').value.trim();
   const city=document.getElementById('reg_city').value.trim();
+  const pincode=document.getElementById('reg_pincode').value.trim();
   const telegram=document.getElementById('reg_telegram').value.trim();
   const errEl=document.getElementById('signupError');
   errEl.style.display='none';
 
-  if(!name||!mobile||!email||!city){errEl.textContent='Please fill all required fields.';errEl.style.display='block';return}
+  if(!name||!mobile||!email||!city||!pincode){errEl.textContent='Please fill all required fields.';errEl.style.display='block';return}
   if(!/^[0-9]{10}$/.test(mobile)){errEl.textContent='Please enter a valid 10-digit mobile number.';errEl.style.display='block';return}
+  if(!/^[0-9]{6}$/.test(pincode)){errEl.textContent='Please enter a valid 6-digit pincode.';errEl.style.display='block';return}
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){errEl.textContent='Please enter a valid email address.';errEl.style.display='block';return}
 
   const btn=document.getElementById('signupBtn');
@@ -458,14 +464,14 @@ async function handleSignup(){
     const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers`,{
       method:'POST',
       headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Prefer':'return=minimal','Accept-Profile':'deallagi','Content-Profile':'deallagi'},
-      body:JSON.stringify({name,mobile,email,city,telegram_id:telegram||null,status:'pending',created_at:new Date().toISOString()})
+      body:JSON.stringify({name,mobile,email,city,pincode,telegram_id:telegram||null,status:'pending',created_at:new Date().toISOString()})
     });
     if(res.ok||res.status===201){
       document.getElementById('signupForm').style.display='none';
       document.getElementById('signupSuccess').style.display='block';
       document.querySelector('#signupModal .modal-switch').style.display='none';
       // notify via GAS
-      fetch(GAS_URL+'?action=newRegistration&name='+encodeURIComponent(name)+'&mobile='+encodeURIComponent(mobile)+'&email='+encodeURIComponent(email)+'&city='+encodeURIComponent(city)+'&telegram='+encodeURIComponent(telegram)).catch(()=>{});
+      fetch(GAS_URL+'?action=newRegistration&name='+encodeURIComponent(name)+'&mobile='+encodeURIComponent(mobile)+'&email='+encodeURIComponent(email)+'&city='+encodeURIComponent(city)+'&pincode='+encodeURIComponent(pincode)+'&telegram='+encodeURIComponent(telegram)).catch(()=>{});
     } else {
       const data=await res.json();
       if(data&&data.message&&data.message.includes('duplicate')){
