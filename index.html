@@ -241,6 +241,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
 </div>
 
 <script>
+// Auto-redirect if already logged in
+if(localStorage.getItem('dl_user')){window.location.href='/dashboard.html';}
+
 const SUPABASE_URL='https://wrzpgultvahxbrgooibn.supabase.co';
 const SUPABASE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
 const GAS_URL='https://script.google.com/macros/s/AKfycbxx45wiRW5rLlyf0nsXrNjaGdnh5eULa_Ffvh7iOhYDevIJqPsWVY0Sto4piIr-nW0SPw/exec';
@@ -282,7 +285,7 @@ async function handleSignin(){
     if(!user.pin){closeModals();openSetPin(mobile);btn.textContent='🔐 Sign in';btn.disabled=false;return;}
     if(!pin){errEl.textContent='Please enter your PIN.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
     if(user.pin!==pin){errEl.textContent='Incorrect PIN. Please try again.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
-    localStorage.setItem('dl_user',JSON.stringify({id:user.id,name:user.name,mobile:user.mobile}));
+    localStorage.setItem('dl_user',JSON.stringify({id:user.id,name:user.name,mobile:user.mobile,city:user.city||''}));
     window.location.href='/dashboard.html';
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;}
 }
@@ -299,7 +302,7 @@ async function handleSetPin(){
       document.getElementById('setPinBtn').style.display='none';document.getElementById('setPinSuccess').style.display='block';
       const r2=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}&select=*`,{headers:SUPA_HEADERS});
       const d=await r2.json();
-      if(d&&d.length>0)localStorage.setItem('dl_user',JSON.stringify({id:d[0].id,name:d[0].name,mobile:d[0].mobile}));
+      if(d&&d.length>0)localStorage.setItem('dl_user',JSON.stringify({id:d[0].id,name:d[0].name,mobile:d[0].mobile,city:d[0].city||''}));
       setTimeout(()=>{window.location.href='/dashboard.html';},1500);
     }else{errEl.textContent='Failed to set PIN. Please try again.';errEl.style.display='block';btn.textContent='✅ Set PIN & Login';btn.disabled=false;}
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='✅ Set PIN & Login';btn.disabled=false;}
