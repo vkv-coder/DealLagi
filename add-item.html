@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>DealLagi — Add Item</title>
+  <title>DealLagi — Add Items</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>" />
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
@@ -18,22 +18,24 @@
       --border:  #C9DEFF;
       --text:    #0D1F3C;
       --muted:   #5A7BA8;
-      --accent:  #F57F17;
       --err:     #D32F2F;
       --green:   #2E7D32;
       --greenL:  #E8F5E9;
-      --greenM:  #A5D6A7;
       --orange:  #E65100;
       --orangeL: #FFF3E0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+
     .topbar { background: linear-gradient(135deg, var(--blue), var(--blue2)); padding: 16px 20px 20px; position: relative; overflow: hidden; }
     .topbar::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 80% at 80% -20%, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none; }
     .topbar-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; position: relative; z-index: 1; }
     .back-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; color: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; text-decoration: none; display: inline-block; }
     .topbar-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 800; color: #fff; text-align: center; }
+
     .wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
+
+    /* Slot indicator */
     .slots-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); display: flex; align-items: center; gap: 14px; }
     .slots-icon { font-size: 2rem; }
     .slots-info { flex: 1; }
@@ -41,45 +43,86 @@
     .slots-bar { background: var(--blueL); border-radius: 20px; height: 8px; overflow: hidden; margin-bottom: 4px; }
     .slots-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--blue), var(--blue2)); transition: width 0.4s ease; }
     .slots-text { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
+
+    /* Item card */
+    .item-form-card {
+      background: var(--card); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 18px 18px 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .item-form-card.optional { border-style: dashed; opacity: 0.7; }
+    .item-form-card.optional.has-input { border-style: solid; opacity: 1; border-color: var(--blue2); }
+    .item-form-card.required { border-color: var(--blue); }
+
+    .item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+    .item-badge {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 800; font-family: 'Baloo 2', cursive;
+      flex-shrink: 0;
+    }
+    .badge-1 { background: var(--blue); color: #fff; }
+    .badge-2 { background: var(--blueL); color: var(--blue); }
+    .badge-3 { background: var(--blueL); color: var(--blue); }
+    .item-label { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; color: var(--text); }
+    .optional-tag { font-size: 0.7rem; color: var(--muted); font-weight: 600; background: var(--blueL); padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+    .required-tag { font-size: 0.7rem; color: #fff; font-weight: 600; background: var(--blue); padding: 2px 8px; border-radius: 10px; margin-left: auto; }
+
+    .field { margin-bottom: 12px; }
+    label.field-lbl { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.95rem; padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    input::placeholder { color: var(--muted); opacity: 0.6; }
+    input:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,0.12); }
+
+    /* Platform checkboxes */
+    .plat-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .plat-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg); border: 2px solid var(--border);
+      border-radius: 10px; padding: 8px 12px;
+      cursor: pointer; transition: all 0.15s;
+      font-size: 0.82rem; font-weight: 700; color: var(--text);
+      user-select: none; flex: 1; justify-content: center;
+    }
+    .plat-btn:hover { border-color: var(--blue2); background: var(--blueL); }
+    .plat-btn.selected { border-color: var(--blue) !important; background: var(--blue2) !important; color: #fff !important; box-shadow: 0 0 0 2px rgba(30,136,229,0.2); }
+    .plat-btn input[type="checkbox"] { display: none; }
+
+    /* Error */
+    #err-msg { display: none; color: var(--err); font-size: 0.83rem; font-weight: 600; margin-bottom: 14px; padding: 10px 14px; background: #FFEBEE; border-radius: 10px; border: 1px solid #FFCDD2; }
+
+    /* Submit button */
+    .btn { width: 100%; background: linear-gradient(135deg, var(--blue), var(--blue2)); border: none; border-radius: 14px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; padding: 15px; cursor: pointer; box-shadow: 0 4px 18px rgba(21,101,192,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s, opacity 0.15s; margin-top: 6px; }
+    .btn:hover { transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .spinner { display: none; width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+    /* Current items */
+    .current-title { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; margin-bottom: 12px; margin-top: 20px; }
+    .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(21,101,192,0.06); }
+    .item-emoji { font-size: 1.5rem; flex-shrink: 0; }
+    .item-info { flex: 1; }
+    .item-name { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+    .item-meta { font-size: 0.73rem; color: var(--muted); margin-top: 2px; }
+    .item-status { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; }
+    .status-pending { background: var(--orangeL); color: var(--orange); }
+    .status-active  { background: var(--greenL);  color: var(--green); }
+
+    /* Limit card */
     .limit-card { display: none; background: var(--orangeL); border: 1px solid #FFCC80; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px; }
     .limit-icon  { font-size: 2.5rem; margin-bottom: 8px; }
     .limit-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; color: var(--orange); margin-bottom: 4px; }
     .limit-sub   { font-size: 0.83rem; color: #BF360C; }
-    .form-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 22px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); margin-bottom: 20px; }
-    .form-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
-    .form-sub   { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
-    .field { margin-bottom: 16px; }
-    label { display: block; font-size: 0.79rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 7px; }
-    input, select, textarea { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 12px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 1rem; padding: 13px 16px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; appearance: none; -webkit-appearance: none; }
-    input::placeholder, textarea::placeholder { color: var(--muted); opacity: 0.6; }
-    input:focus, select:focus, textarea:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,0.12); }
-    textarea { resize: none; height: 80px; }
-    .platform-checks { display: flex; flex-direction: column; gap: 10px; }
-    .check-item { display: flex; align-items: center; gap: 12px; background: var(--bg); border: 2px solid var(--border); border-radius: 12px; padding: 13px 16px; cursor: pointer; transition: all 0.2s; font-size: 0.95rem; font-weight: 600; color: var(--text); user-select: none; }
-    .check-item:hover { border-color: var(--blue2); background: var(--blueL); }
-    .check-item input[type="checkbox"] { width: 20px; height: 20px; cursor: pointer; accent-color: var(--blue); flex-shrink: 0; padding: 0; border: none; background: none; }
-    .check-item.selected { border-color: var(--blue) !important; background: #1E88E5 !important; color: #ffffff !important; font-weight: 700 !important; box-shadow: 0 0 0 3px rgba(30,136,229,0.25) !important; }
-    .hint { background: var(--blueL); border: 1px solid var(--blueM); border-radius: 10px; padding: 10px 14px; font-size: 0.78rem; color: var(--blue3); margin-top: 6px; line-height: 1.5; }
-    #err-msg { display: none; color: var(--err); font-size: 0.83rem; font-weight: 600; margin-bottom: 14px; padding: 10px 14px; background: #FFEBEE; border-radius: 10px; border: 1px solid #FFCDD2; }
-    .btn { width: 100%; background: linear-gradient(135deg, var(--blue), var(--blue2)); border: none; border-radius: 14px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; padding: 15px; cursor: pointer; box-shadow: 0 4px 18px rgba(21,101,192,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s; }
-    .btn:hover   { transform: translateY(-1px); }
-    .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-    .spinner { display: none; width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
-    .current-title { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; margin-bottom: 12px; }
-    .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(21,101,192,0.06); }
-    .item-emoji { font-size: 1.5rem; flex-shrink: 0; }
-    .item-info  { flex: 1; }
-    .item-name  { font-weight: 700; font-size: 0.9rem; color: var(--text); }
-    .item-meta  { font-size: 0.73rem; color: var(--muted); margin-top: 2px; }
-    .item-status { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; }
-    .status-pending  { background: var(--orangeL); color: var(--orange); }
-    .status-active   { background: var(--greenL);  color: var(--green); }
+
+    /* Success */
     #success-screen { display: none; text-align: center; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 22px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); margin-bottom: 20px; }
-    .success-icon { width: 70px; height: 70px; background: linear-gradient(135deg, var(--blue), var(--blue2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; box-shadow: 0 4px 20px rgba(21,101,192,0.3); animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    .success-icon-wrap { width: 70px; height: 70px; background: linear-gradient(135deg, var(--blue), var(--blue2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; box-shadow: 0 4px 20px rgba(21,101,192,0.3); animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
     .success-title { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
     .success-msg   { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
-    .btn-outline { width: 100%; background: transparent; border: 2px solid var(--blue2); border-radius: 14px; color: var(--blue); font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; padding: 13px; cursor: pointer; transition: background 0.2s; }
-    .btn-outline:hover { background: var(--blueL); }
+    .btn-outline { width: 100%; background: transparent; border: 2px solid var(--blue2); border-radius: 14px; color: var(--blue); font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; padding: 13px; cursor: pointer; }
+
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pop  { from { transform: scale(0); } to { transform: scale(1); } }
     @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
@@ -91,83 +134,114 @@
 <div class="topbar">
   <div class="topbar-row">
     <div><a href="dashboard.html" class="back-btn">← Back</a></div>
-    <div class="topbar-title">➕ Add Item</div>
+    <div class="topbar-title">➕ Add Items</div>
     <div></div>
   </div>
 </div>
 
 <div class="wrap">
 
+  <!-- Slot indicator -->
   <div class="slots-card fadein">
     <div class="slots-icon">📦</div>
     <div class="slots-info">
       <div class="slots-title">Your Tracking Slots</div>
-      <div class="slots-bar">
-        <div class="slots-fill" id="slots-fill" style="width:0%"></div>
-      </div>
+      <div class="slots-bar"><div class="slots-fill" id="slots-fill" style="width:0%"></div></div>
       <div class="slots-text" id="slots-text">Loading...</div>
-      <div style="font-size:0.72rem; color:var(--muted); margin-top:3px;" id="platform-slots-text"></div>
     </div>
   </div>
 
+  <!-- Limit reached -->
   <div class="limit-card" id="limit-card">
     <div class="limit-icon">🚫</div>
     <div class="limit-title">Slot Limit Reached!</div>
     <div class="limit-sub">You are already tracking 3 items — the maximum for free plan.<br/>Remove an existing item to add a new one.</div>
   </div>
 
+  <!-- Success screen -->
   <div id="success-screen">
-    <div class="success-icon">🎯</div>
-    <div class="success-title">Item Submitted!</div>
-    <div class="success-msg">
-      Your item request has been received!<br/>
-      We'll review and activate it within 24 hours.<br/>
-      <strong style="color:var(--blue)">You'll be notified via Email & Telegram! 📧</strong>
-    </div>
+    <div class="success-icon-wrap">🎯</div>
+    <div class="success-title">Items Submitted!</div>
+    <div class="success-msg">Your item request(s) have been received!<br/>We'll review and activate within 24 hours.<br/><strong style="color:var(--blue)">You'll be notified via Email & Telegram! 📧</strong></div>
     <button class="btn-outline" onclick="window.location.href='dashboard.html'">← Go to Dashboard</button>
   </div>
 
-  <div class="form-card fadein" id="form-card">
-    <div class="form-title">🔍 Tell us what to track</div>
-    <div class="form-sub">Enter the exact product name as shown on the app</div>
+  <!-- Form -->
+  <div id="form-section">
 
     <div id="err-msg"></div>
 
-    <div class="field">
-      <label>🏷️ Product Name</label>
-      <input type="text" id="inp-name" placeholder="e.g. Amul Gold Vanilla Ice Cream 1L" />
-      <div class="hint">💡 Type the exact name as you see it on Swiggy/Blinkit/Zepto</div>
-    </div>
-
-    <div class="field">
-      <label>🛒 Platform (select one or more)</label>
-      <div class="platform-checks">
-        <label class="check-item">
-          <input type="checkbox" value="Swiggy" class="plat-cb" />
-          <span>🛒 Swiggy Instamart</span>
-        </label>
-        <label class="check-item">
-          <input type="checkbox" value="Blinkit" class="plat-cb" />
-          <span>⚡ Blinkit</span>
-        </label>
-        <label class="check-item">
-          <input type="checkbox" value="Zepto" class="plat-cb" />
-          <span>🚀 Zepto</span>
-        </label>
+    <!-- Item 1 -->
+    <div class="item-form-card required fadein" id="card-1">
+      <div class="item-header">
+        <div class="item-badge badge-1">1</div>
+        <div class="item-label">Item 1</div>
+        <span class="required-tag">Required</span>
+      </div>
+      <div class="field">
+        <label class="field-lbl">🏷️ Product Name</label>
+        <input type="text" id="name-1" placeholder="e.g. Amul Gold Vanilla Ice Cream 1L" />
+      </div>
+      <div class="field">
+        <label class="field-lbl">🛒 Platform</label>
+        <div class="plat-row" id="plat-1">
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Swiggy"><span>🛒 Swiggy</span></label>
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Blinkit"><span>⚡ Blinkit</span></label>
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Zepto"><span>🚀 Zepto</span></label>
+        </div>
       </div>
     </div>
 
-    <div class="field">
-      <label>📝 Any Notes (optional)</label>
-      <textarea id="inp-notes" placeholder="e.g. The 1 litre tub only, not the 500ml one"></textarea>
+    <!-- Item 2 -->
+    <div class="item-form-card optional fadein" id="card-2" style="animation-delay:0.05s">
+      <div class="item-header">
+        <div class="item-badge badge-2">2</div>
+        <div class="item-label">Item 2</div>
+        <span class="optional-tag">Optional</span>
+      </div>
+      <div class="field">
+        <label class="field-lbl">🏷️ Product Name</label>
+        <input type="text" id="name-2" placeholder="Add a second item (optional)" oninput="checkOptional(2)" />
+      </div>
+      <div class="field">
+        <label class="field-lbl">🛒 Platform</label>
+        <div class="plat-row" id="plat-2">
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Swiggy"><span>🛒 Swiggy</span></label>
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Blinkit"><span>⚡ Blinkit</span></label>
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Zepto"><span>🚀 Zepto</span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Item 3 -->
+    <div class="item-form-card optional fadein" id="card-3" style="animation-delay:0.1s">
+      <div class="item-header">
+        <div class="item-badge badge-3">3</div>
+        <div class="item-label">Item 3</div>
+        <span class="optional-tag">Optional</span>
+      </div>
+      <div class="field">
+        <label class="field-lbl">🏷️ Product Name</label>
+        <input type="text" id="name-3" placeholder="Add a third item (optional)" oninput="checkOptional(3)" />
+      </div>
+      <div class="field">
+        <label class="field-lbl">🛒 Platform</label>
+        <div class="plat-row" id="plat-3">
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Swiggy"><span>🛒 Swiggy</span></label>
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Blinkit"><span>⚡ Blinkit</span></label>
+          <label class="plat-btn" onclick="togglePlat(this)"><input type="checkbox" value="Zepto"><span>🚀 Zepto</span></label>
+        </div>
+      </div>
     </div>
 
     <button class="btn" id="btn-submit" onclick="handleSubmit()">
       <span id="btn-text">Submit Item Request 🎯</span>
       <div class="spinner" id="spinner"></div>
     </button>
+
   </div>
 
+  <!-- Current tracked items -->
   <div id="current-items-section" style="display:none;">
     <div class="current-title">📦 Currently Tracking</div>
     <div id="current-items-list"></div>
@@ -183,6 +257,26 @@
 
   let currentUser      = null;
   let currentItemCount = 0;
+
+  function togglePlat(el) {
+    const cb = el.querySelector('input[type="checkbox"]');
+    cb.checked = !cb.checked;
+    el.classList.toggle('selected', cb.checked);
+  }
+
+  function checkOptional(n) {
+    const val  = document.getElementById('name-' + n).value.trim();
+    const card = document.getElementById('card-' + n);
+    if (val) {
+      card.classList.add('has-input');
+    } else {
+      card.classList.remove('has-input');
+    }
+  }
+
+  function getSelectedPlats(n) {
+    return [...document.querySelectorAll(`#plat-${n} input:checked`)].map(cb => cb.value);
+  }
 
   function showErr(msg) { const el = document.getElementById('err-msg'); el.textContent = msg; el.style.display = 'block'; }
   function hideErr()    { document.getElementById('err-msg').style.display = 'none'; }
@@ -201,35 +295,31 @@
 
   async function loadCurrentItems() {
     try {
-      // KEY FIX: use subscriber_id not user_id
       const res = await fetch(
-        `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&select=id,active,item_name,platform,notes,created_at`,
+        `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&select=id,active,item_name,platform,created_at`,
         { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
       );
       const items = res.ok ? await res.json() : [];
       currentItemCount = Array.isArray(items) ? items.length : 0;
 
-      let platformSlotsUsed = 0;
-      if (Array.isArray(items)) {
-        items.forEach(item => {
-          platformSlotsUsed += item.platform ? item.platform.split(',').length : 1;
-        });
-      }
-      const MAX_PLATFORM_SLOTS = MAX_ITEMS * 3;
-
       const pct = (currentItemCount / MAX_ITEMS) * 100;
       document.getElementById('slots-fill').style.width = pct + '%';
       document.getElementById('slots-text').textContent = `${currentItemCount} of ${MAX_ITEMS} items used`;
-      document.getElementById('platform-slots-text').innerHTML = `Platform slots: <strong>${platformSlotsUsed} of ${MAX_PLATFORM_SLOTS}</strong> used`;
+
+      const remaining = MAX_ITEMS - currentItemCount;
 
       if (currentItemCount >= MAX_ITEMS) {
         document.getElementById('limit-card').style.display = 'block';
-        document.getElementById('form-card').style.display  = 'none';
+        document.getElementById('form-section').style.display = 'none';
+      } else {
+        // Hide extra cards based on remaining slots
+        if (remaining < 3) document.getElementById('card-3').style.display = remaining < 2 ? 'none' : 'block';
+        if (remaining < 2) document.getElementById('card-2').style.display = 'none';
       }
 
       if (currentItemCount > 0) {
         document.getElementById('current-items-section').style.display = 'block';
-        const emojis = ['🛒','📦','🏷️','🍦','🧃'];
+        const emojis = ['🛒','📦','🏷️'];
         document.getElementById('current-items-list').innerHTML = items.map((item, i) => `
           <div class="item-card">
             <div class="item-emoji">${emojis[i % emojis.length]}</div>
@@ -242,74 +332,83 @@
             </div>
           </div>`).join('');
       }
-
     } catch(e) {
       console.error(e);
-      document.getElementById('slots-text').textContent = '0 of 3 slots used';
+      document.getElementById('slots-text').textContent = '0 of 3 items used';
     }
   }
 
   async function handleSubmit() {
     hideErr();
-    const name     = document.getElementById('inp-name').value.trim();
-    const checked  = [...document.querySelectorAll('.plat-cb:checked')].map(cb => cb.value);
-    const platform = checked.join(',');
-    const notes    = document.getElementById('inp-notes').value.trim();
 
-    if (!name)     return showErr('Please enter the product name.');
-    if (!platform) return showErr('Please select at least one platform.');
-    if (currentItemCount >= MAX_ITEMS) return showErr('You have reached the maximum of 3 items.');
+    const name1  = document.getElementById('name-1').value.trim();
+    const plat1  = getSelectedPlats(1);
+    const name2  = document.getElementById('name-2').value.trim();
+    const plat2  = getSelectedPlats(2);
+    const name3  = document.getElementById('name-3').value.trim();
+    const plat3  = getSelectedPlats(3);
+
+    // Validate item 1
+    if (!name1) return showErr('Please enter a product name for Item 1.');
+    if (!plat1.length) return showErr('Please select at least one platform for Item 1.');
+
+    // Validate item 2 if filled
+    if (name2 && !plat2.length) return showErr('Please select a platform for Item 2.');
+    // Validate item 3 if filled
+    if (name3 && !plat3.length) return showErr('Please select a platform for Item 3.');
+
+    // Build list of items to submit
+    const toSubmit = [];
+    const remaining = MAX_ITEMS - currentItemCount;
+
+    toSubmit.push({ name: name1, platform: plat1.join(',') });
+    if (name2 && toSubmit.length < remaining) toSubmit.push({ name: name2, platform: plat2.join(',') });
+    if (name3 && toSubmit.length < remaining) toSubmit.push({ name: name3, platform: plat3.join(',') });
+
+    if (toSubmit.length === 0) return showErr('Please enter at least one item.');
 
     setLoading(true);
-    try {
-      const res = await fetch(`${SUPA_URL}/rest/v1/user_items`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPA_KEY,
-          'Authorization': `Bearer ${SUPA_KEY}`,
-          'Content-Type': 'application/json',
-          'Accept-Profile': SCHEMA,
-          'Content-Profile': SCHEMA,
-          'Prefer': 'return=representation',
-        },
-        // KEY FIX: subscriber_id instead of user_id, no city_id
-        body: JSON.stringify({
-          subscriber_id: currentUser.id,
-          item_name:     name,
-          platform:      platform,
-          notes:         notes || null,
-          active:        false,
-        })
-      });
 
-      const data = await res.json();
-      if (!res.ok) {
-        console.error(data);
-        setLoading(false);
-        return showErr('Submission failed. Please try again.');
+    try {
+      let successCount = 0;
+      for (const item of toSubmit) {
+        const res = await fetch(`${SUPA_URL}/rest/v1/user_items`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
+            'Content-Type': 'application/json',
+            'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
+            'Prefer': 'return=representation',
+          },
+          body: JSON.stringify({
+            subscriber_id: currentUser.id,
+            item_name:     item.name,
+            platform:      item.platform,
+            active:        false,
+          })
+        });
+        if (res.ok) {
+          successCount++;
+          // Telegram admin notification
+          const tgMsg = `🆕 DealLagi New Item!%0A%0A👤 ${currentUser.name} (${currentUser.mobile})%0A🏷️ ${item.name}%0A🛒 ${item.platform}%0A%0A✅ Approve in Supabase`;
+          fetch(`https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=${tgMsg}`)
+            .catch(() => {});
+        }
       }
 
-      // Telegram admin notification
-      const tgMsg = `🆕 DealLagi New Item Request!%0A%0A👤 ${currentUser.name} (${currentUser.mobile})%0A🏷️ Item: ${name}%0A🛒 Platform: ${platform}%0A📝 Notes: ${notes || 'None'}%0A%0A✅ Approve in Supabase → deallagi.user_items`;
-      fetch(`https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=${tgMsg}`)
-        .catch(e => console.log('TG notify failed', e));
-
       setLoading(false);
-      document.getElementById('form-card').style.display   = 'none';
-      document.getElementById('success-screen').style.display = 'block';
-
+      if (successCount > 0) {
+        document.getElementById('form-section').style.display = 'none';
+        document.getElementById('success-screen').style.display = 'block';
+      } else {
+        showErr('Submission failed. Please try again.');
+      }
     } catch(e) {
       console.error(e);
       setLoading(false);
       showErr('Network error. Please try again.');
     }
   }
-
-  document.querySelectorAll('.plat-cb').forEach(cb => {
-    cb.addEventListener('change', () => {
-      cb.closest('.check-item').classList.toggle('selected', cb.checked);
-    });
-  });
 
   window.addEventListener('DOMContentLoaded', init);
 </script>
