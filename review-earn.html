@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>DealLagi — Review & Earn</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1565C0; --blue2:   #1E88E5; --blue3:   #1976D2;
+      --blueL:   #E3F2FD; --blueM:   #BBDEFB; --bg:      #F0F6FF;
+      --card:    #FFFFFF; --border:  #C9DEFF; --text:    #0D1F3C;
+      --muted:   #5A7BA8; --accent:  #F57F17; --err:     #D32F2F;
+      --green:   #2E7D32; --greenL:  #E8F5E9;
+      --gold:    #F9A825; --goldL:   #FFF8E1;
+      --orange:  #E65100; --orangeL: #FFF3E0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+
+    /* TOPBAR */
+    .topbar { background: linear-gradient(135deg, var(--blue), var(--blue2)); padding: 16px 20px 20px; position: relative; overflow: hidden; }
+    .topbar::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 80% at 80% -20%, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none; }
+    .topbar-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; position: relative; z-index: 1; }
+    .back-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; color: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; text-decoration: none; display: inline-block; }
+    .topbar-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 800; color: #fff; text-align: center; }
+
+    .wrap { padding: 16px; max-width: 480px; margin: 0 auto; }
+
+    /* BONUS BANNER */
+    .bonus-banner { background: linear-gradient(135deg, #F9A825, #FF8F00); border-radius: 16px; padding: 16px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px; box-shadow: 0 4px 16px rgba(249,168,37,0.3); }
+    .bonus-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .bonus-info { flex: 1; }
+    .bonus-title { font-family: 'Baloo 2', cursive; font-size: 1.05rem; font-weight: 800; color: #fff; margin-bottom: 2px; }
+    .bonus-sub { font-size: 0.75rem; color: rgba(255,255,255,0.85); line-height: 1.4; }
+    .bonus-slots { background: rgba(255,255,255,0.25); border-radius: 20px; padding: 4px 12px; font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 800; color: #fff; flex-shrink: 0; text-align: center; }
+    .bonus-slots span { font-size: 0.65rem; display: block; opacity: 0.85; }
+
+    /* SECTION TITLE */
+    .sec-title { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+
+    /* PENDING REVIEW CARD */
+    .pending-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); }
+    .pending-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+    .pending-emoji { font-size: 1.4rem; flex-shrink: 0; }
+    .pending-info { flex: 1; }
+    .pending-name { font-weight: 700; font-size: 0.88rem; color: var(--text); }
+    .pending-meta { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .pending-badge { background: var(--goldL); color: var(--accent); border-radius: 20px; padding: 3px 10px; font-size: 0.72rem; font-weight: 700; flex-shrink: 0; }
+    .write-btn { width: 100%; background: linear-gradient(135deg, var(--gold), #FF8F00); border: none; border-radius: 10px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 0.9rem; font-weight: 700; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .write-btn:hover { opacity: 0.92; }
+
+    /* DONE CARD */
+    .done-card { background: var(--greenL); border: 1px solid #A5D6A7; border-radius: 14px; padding: 12px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .done-info { flex: 1; }
+    .done-name { font-weight: 700; font-size: 0.85rem; color: var(--green); }
+    .done-meta { font-size: 0.70rem; color: #388E3C; margin-top: 2px; }
+    .done-badge { background: var(--green); color: #fff; border-radius: 20px; padding: 3px 10px; font-size: 0.70rem; font-weight: 700; flex-shrink: 0; }
+
+    /* EMPTY */
+    .empty-state { background: var(--card); border: 1.5px dashed var(--blueM); border-radius: 14px; padding: 28px 20px; text-align: center; }
+    .empty-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    .empty-title { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .empty-sub { font-size: 0.82rem; color: var(--muted); }
+
+    /* MODAL OVERLAY */
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(13,31,60,0.55); z-index: 200; align-items: flex-end; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: var(--card); border-radius: 24px 24px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 480px; animation: slideUp 0.3s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    .modal-handle { width: 40px; height: 4px; background: var(--border); border-radius: 4px; margin: 0 auto 20px; }
+    .modal-title { font-family: 'Baloo 2', cursive; font-size: 1.2rem; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+    .modal-item { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; }
+
+    /* REVIEW FORM */
+    .field { margin-bottom: 16px; }
+    .field-lbl { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+    input[type="number"], textarea { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.95rem; padding: 11px 14px; outline: none; transition: border-color 0.2s; }
+    input[type="number"]:focus, textarea:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,0.12); }
+    textarea { resize: none; height: 80px; }
+
+    /* STAR RATING */
+    .stars { display: flex; gap: 8px; }
+    .star { font-size: 2rem; cursor: pointer; transition: transform 0.15s; filter: grayscale(1) opacity(0.4); }
+    .star.active { filter: none; transform: scale(1.15); }
+    .star:hover { transform: scale(1.2); }
+
+    /* AMOUNT PREFIX */
+    .amount-wrap { position: relative; }
+    .amount-prefix { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-weight: 700; color: var(--blue); font-size: 1rem; }
+    .amount-wrap input { padding-left: 30px; }
+
+    /* SUBMIT */
+    .modal-btn { width: 100%; background: linear-gradient(135deg, var(--gold), #FF8F00); border: none; border-radius: 14px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; padding: 14px; cursor: pointer; box-shadow: 0 4px 16px rgba(249,168,37,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
+    .modal-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .modal-cancel { width: 100%; background: transparent; border: none; color: var(--muted); font-family: 'Nunito', sans-serif; font-size: 0.88rem; font-weight: 700; padding: 12px; cursor: pointer; margin-top: 6px; }
+
+    /* SUCCESS MODAL */
+    .success-modal { display: none; position: fixed; inset: 0; background: rgba(13,31,60,0.55); z-index: 300; align-items: center; justify-content: center; }
+    .success-modal.open { display: flex; }
+    .success-box { background: var(--card); border-radius: 20px; padding: 32px 24px; text-align: center; max-width: 320px; width: 90%; animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
+    @keyframes pop { from { transform: scale(0.7); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-emoji { font-size: 3.5rem; margin-bottom: 12px; }
+    .success-title { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; color: var(--blue); margin-bottom: 6px; }
+    .success-msg { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
+    .success-ok { background: var(--blue); border: none; border-radius: 12px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; padding: 12px 30px; cursor: pointer; }
+
+    /* ERR */
+    .err-msg { display: none; color: var(--err); font-size: 0.82rem; font-weight: 600; padding: 8px 12px; background: #FFEBEE; border-radius: 8px; margin-bottom: 12px; }
+
+    /* LOADER */
+    #loading { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; flex-direction: column; gap: 12px; }
+    .loader { width: 40px; height: 40px; border: 4px solid var(--blueM); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .loader-text { font-family: 'Baloo 2', cursive; color: var(--blue); font-size: 1rem; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fadein { animation: fadeUp 0.4s ease both; }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loader"></div>
+  <div class="loader-text">Loading...</div>
+</div>
+
+<div id="main" style="display:none;">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div><a href="dashboard.html" class="back-btn">← Back</a></div>
+      <div class="topbar-title">🎁 Review & Earn</div>
+      <div></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- Bonus Banner -->
+    <div class="bonus-banner fadein">
+      <div class="bonus-icon">🎁</div>
+      <div class="bonus-info">
+        <div class="bonus-title">Review & Earn Bonus Slots!</div>
+        <div class="bonus-sub">Got a deal alert? Share your experience → earn an extra item slot!</div>
+      </div>
+      <div class="bonus-slots" id="bonus-slots-display">
+        <div id="bonus-count">0</div>
+        <span>Bonus</span>
+      </div>
+    </div>
+
+    <!-- Pending Reviews -->
+    <div id="pending-section">
+      <div class="sec-title">⏳ Awaiting Your Review</div>
+      <div id="pending-list"></div>
+    </div>
+
+    <!-- Completed Reviews -->
+    <div id="done-section" style="display:none; margin-top:20px;">
+      <div class="sec-title">✅ Reviews Submitted</div>
+      <div id="done-list"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Review Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✍️ Write Your Review</div>
+    <div class="modal-item" id="modal-item-name">Item: —</div>
+
+    <div class="err-msg" id="modal-err"></div>
+
+    <!-- Amount Saved -->
+    <div class="field">
+      <label class="field-lbl">💰 Amount Saved (₹)</label>
+      <div class="amount-wrap">
+        <span class="amount-prefix">₹</span>
+        <input type="number" id="inp-amount" placeholder="e.g. 235" min="1" />
+      </div>
+    </div>
+
+    <!-- Star Rating -->
+    <div class="field">
+      <label class="field-lbl">⭐ Star Rating</label>
+      <div class="stars" id="stars-row">
+        <span class="star" data-val="1" onclick="setStar(1)">⭐</span>
+        <span class="star" data-val="2" onclick="setStar(2)">⭐</span>
+        <span class="star" data-val="3" onclick="setStar(3)">⭐</span>
+        <span class="star" data-val="4" onclick="setStar(4)">⭐</span>
+        <span class="star" data-val="5" onclick="setStar(5)">⭐</span>
+      </div>
+    </div>
+
+    <!-- Remarks -->
+    <div class="field">
+      <label class="field-lbl">📝 Remarks (Optional)</label>
+      <textarea id="inp-remarks" placeholder="Tell others about this deal..."></textarea>
+    </div>
+
+    <button class="modal-btn" id="modal-submit-btn" onclick="submitReview()">
+      🎁 Submit & Earn Slot
+    </button>
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="success-modal" id="success-modal">
+  <div class="success-box">
+    <div class="success-emoji">🎉</div>
+    <div class="success-title">Bonus Slot Earned!</div>
+    <div class="success-msg">Your review has been submitted!<br/>
+      <strong style="color:var(--blue)">+1 item slot unlocked!</strong><br/>
+      Go add a new item to track!</div>
+    <button class="success-ok" onclick="handleSuccessOk()">🛒 Add New Item</button>
+  </div>
+</div>
+
+<script>
+  const SUPA_URL = 'https://wrzpgultvahxbrgooibn.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
+  const SCHEMA   = 'deallagi';
+  const GAS_URL  = 'https://script.google.com/macros/s/AKfycbzcFrs-VtN6ZfPed10Btq_HdYUFmFbIJqTUvZGc4pGToR3Sx4F-RV-MazPZskrDUyzQZw/exec';
+
+  let currentUser   = null;
+  let selectedStar  = 0;
+  let activeItem    = null;   // item being reviewed
+  let alertedItems  = [];
+  let reviewedItems = [];
+
+  const H = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA };
+
+  async function init() {
+    const saved = localStorage.getItem('dl_user');
+    if (!saved) { window.location.href = '/'; return; }
+    currentUser = JSON.parse(saved);
+    await loadData();
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').style.display    = 'block';
+  }
+
+  async function loadData() {
+    // 1. Load alerted user_items (active=true means alert was sent)
+    const r1 = await fetch(
+      `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&active=eq.true&select=id,item_name,platform,created_at`,
+      { headers: H }
+    );
+    alertedItems = r1.ok ? await r1.json() : [];
+
+    // 2. Load submitted reviews by this user
+    const r2 = await fetch(
+      `${SUPA_URL}/rest/v1/reviews?subscriber_id=eq.${currentUser.id}&select=id,item_name,amount_saved,star_rating,remarks,created_at`,
+      { headers: H }
+    );
+    reviewedItems = r2.ok ? await r2.json() : [];
+
+    // 3. Load bonus_slots from subscriber
+    const r3 = await fetch(
+      `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
+      { headers: H }
+    );
+    const subData = r3.ok ? await r3.json() : [];
+    const bonusSlots = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
+    document.getElementById('bonus-count').textContent = bonusSlots;
+
+    renderLists();
+  }
+
+  function renderLists() {
+    const reviewedNames = new Set(reviewedItems.map(r => r.item_name.toLowerCase()));
+
+    // Items alerted but NOT yet reviewed
+    const pending = alertedItems.filter(i => !reviewedNames.has(i.item_name.toLowerCase()));
+    // Items alerted AND reviewed
+    const done    = alertedItems.filter(i => reviewedNames.has(i.item_name.toLowerCase()));
+
+    const emojis = ['🛒','📦','🏷️','🍦','🧃','🍕','🧴','🥤'];
+
+    // Render pending
+    const pendingList = document.getElementById('pending-list');
+    if (pending.length === 0) {
+      pendingList.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🔔</div>
+          <div class="empty-title">No pending reviews!</div>
+          <div class="empty-sub">Once you receive a deal alert for your item,<br/>it will appear here for review.</div>
+        </div>`;
+    } else {
+      pendingList.innerHTML = pending.map((item, idx) => `
+        <div class="pending-card fadein">
+          <div class="pending-top">
+            <div class="pending-emoji">${emojis[idx % emojis.length]}</div>
+            <div class="pending-info">
+              <div class="pending-name">${item.item_name}</div>
+              <div class="pending-meta">${item.platform}</div>
+            </div>
+            <div class="pending-badge">⏳ Review Due</div>
+          </div>
+          <button class="write-btn" onclick="openModal('${item.item_name.replace(/'/g,"\\'")}')">
+            ✍️ Write Review → Earn +1 Slot
+          </button>
+        </div>`).join('');
+    }
+
+    // Render done
+    if (done.length > 0) {
+      document.getElementById('done-section').style.display = 'block';
+      document.getElementById('done-list').innerHTML = done.map((item, idx) => {
+        const review = reviewedItems.find(r => r.item_name.toLowerCase() === item.item_name.toLowerCase());
+        return `
+          <div class="done-card">
+            <div class="pending-emoji">${emojis[idx % emojis.length]}</div>
+            <div class="done-info">
+              <div class="done-name">${item.item_name}</div>
+              <div class="done-meta">Saved ₹${review ? review.amount_saved : '—'} · ${'⭐'.repeat(review ? review.star_rating : 0)}</div>
+            </div>
+            <div class="done-badge">✅ Reviewed</div>
+          </div>`;
+      }).join('');
+    }
+  }
+
+  function openModal(itemName) {
+    activeItem = itemName;
+    selectedStar = 0;
+    document.getElementById('modal-item-name').textContent = '🏷️ ' + itemName;
+    document.getElementById('inp-amount').value  = '';
+    document.getElementById('inp-remarks').value = '';
+    document.getElementById('modal-err').style.display = 'none';
+    setStar(0);
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('modal-overlay').classList.remove('open');
+    activeItem = null;
+  }
+
+  function setStar(val) {
+    selectedStar = val;
+    document.querySelectorAll('.star').forEach((s, i) => {
+      s.classList.toggle('active', i < val);
+    });
+  }
+
+  async function submitReview() {
+    const amount  = parseFloat(document.getElementById('inp-amount').value);
+    const remarks = document.getElementById('inp-remarks').value.trim();
+    const errEl   = document.getElementById('modal-err');
+
+    // Validate
+    if (!amount || amount <= 0) {
+      errEl.textContent = 'Please enter amount saved (₹).';
+      errEl.style.display = 'block'; return;
+    }
+    if (!selectedStar) {
+      errEl.textContent = 'Please select a star rating.';
+      errEl.style.display = 'block'; return;
+    }
+    errEl.style.display = 'none';
+
+    const btn = document.getElementById('modal-submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      // 1. Insert review to Supabase
+      const r1 = await fetch(`${SUPA_URL}/rest/v1/reviews`, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
+          'Prefer': 'return=representation'
+        },
+        body: JSON.stringify({
+          subscriber_id: currentUser.id,
+          item_name:     activeItem,
+          amount_saved:  amount,
+          star_rating:   selectedStar,
+          remarks:       remarks || null
+        })
+      });
+
+      if (!r1.ok) throw new Error('Review insert failed');
+
+      // 2. Increment bonus_slots in deallagi_subscribers
+      const r2 = await fetch(
+        `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
+        { headers: H }
+      );
+      const subData    = r2.ok ? await r2.json() : [];
+      const curBonus   = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
+      const newBonus   = curBonus + 1;
+
+      await fetch(`${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
+          'Content-Type': 'application/json',
+          'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA
+        },
+        body: JSON.stringify({ bonus_slots: newBonus })
+      });
+
+      // 3. Log to GAS Reviews sheet
+      const stars = '★'.repeat(selectedStar) + '☆'.repeat(5 - selectedStar);
+      fetch(`${GAS_URL}?action=save_review&name=${encodeURIComponent(currentUser.name)}&mobile=${encodeURIComponent(currentUser.mobile)}&item=${encodeURIComponent(activeItem)}&amount=${amount}&stars=${encodeURIComponent(stars)}&rating=${selectedStar}&remarks=${encodeURIComponent(remarks)}`)
+        .catch(() => {});
+
+      // 4. Close modal, show success
+      closeModal();
+      document.getElementById('bonus-count').textContent = newBonus;
+      document.getElementById('success-modal').classList.add('open');
+
+      // Refresh lists
+      await loadData();
+
+    } catch(e) {
+      errEl.textContent = 'Submission failed. Please try again.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '🎁 Submit & Earn Slot';
+    }
+  }
+
+  function handleSuccessOk() {
+    document.getElementById('success-modal').classList.remove('open');
+    window.location.href = 'add-item.html';
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
