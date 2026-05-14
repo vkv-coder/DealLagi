@@ -8,34 +8,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --blue:    #1565C0;
-      --blue2:   #1E88E5;
-      --blue3:   #1976D2;
-      --blueL:   #E3F2FD;
-      --blueM:   #BBDEFB;
-      --bg:      #F0F6FF;
-      --card:    #FFFFFF;
-      --border:  #C9DEFF;
-      --text:    #0D1F3C;
-      --muted:   #5A7BA8;
-      --err:     #D32F2F;
-      --green:   #2E7D32;
-      --greenL:  #E8F5E9;
-      --orange:  #E65100;
-      --orangeL: #FFF3E0;
+      --blue:    #1565C0; --blue2:   #1E88E5; --blue3:   #1976D2;
+      --blueL:   #E3F2FD; --blueM:   #BBDEFB; --bg:      #F0F6FF;
+      --card:    #FFFFFF; --border:  #C9DEFF; --text:    #0D1F3C;
+      --muted:   #5A7BA8; --err:     #D32F2F;
+      --green:   #2E7D32; --greenL:  #E8F5E9;
+      --orange:  #E65100; --orangeL: #FFF3E0;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
-
     .topbar { background: linear-gradient(135deg, var(--blue), var(--blue2)); padding: 16px 20px 20px; position: relative; overflow: hidden; }
     .topbar::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 80% at 80% -20%, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none; }
     .topbar-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; position: relative; z-index: 1; }
     .back-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; color: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; text-decoration: none; display: inline-block; }
     .topbar-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 800; color: #fff; text-align: center; }
-
     .wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
-
-    /* Slot indicator */
     .slots-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); display: flex; align-items: center; gap: 14px; }
     .slots-icon { font-size: 2rem; }
     .slots-info { flex: 1; }
@@ -43,63 +30,33 @@
     .slots-bar { background: var(--blueL); border-radius: 20px; height: 8px; overflow: hidden; margin-bottom: 4px; }
     .slots-fill { height: 100%; border-radius: 20px; background: linear-gradient(90deg, var(--blue), var(--blue2)); transition: width 0.4s ease; }
     .slots-text { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
-
-    /* Item card */
-    .item-form-card {
-      background: var(--card); border: 1.5px solid var(--border);
-      border-radius: 16px; padding: 18px 18px 14px;
-      margin-bottom: 14px;
-      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
+    .item-form-card { background: var(--card); border: 1.5px solid var(--border); border-radius: 16px; padding: 18px 18px 14px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); transition: border-color 0.2s; }
     .item-form-card.optional { border-style: dashed; opacity: 0.7; }
     .item-form-card.optional.has-input { border-style: solid; opacity: 1; border-color: var(--blue2); }
     .item-form-card.required { border-color: var(--blue); }
-
     .item-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .item-badge {
-      width: 28px; height: 28px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 800; font-family: 'Baloo 2', cursive;
-      flex-shrink: 0;
-    }
+    .item-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 800; font-family: 'Baloo 2', cursive; flex-shrink: 0; }
     .badge-1 { background: var(--blue); color: #fff; }
     .badge-2 { background: var(--blueL); color: var(--blue); }
     .badge-3 { background: var(--blueL); color: var(--blue); }
     .item-label { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; color: var(--text); }
     .optional-tag { font-size: 0.7rem; color: var(--muted); font-weight: 600; background: var(--blueL); padding: 2px 8px; border-radius: 10px; margin-left: auto; }
     .required-tag { font-size: 0.7rem; color: #fff; font-weight: 600; background: var(--blue); padding: 2px 8px; border-radius: 10px; margin-left: auto; }
-
     .field { margin-bottom: 12px; }
     label.field-lbl { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
     input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.95rem; padding: 11px 14px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
     input::placeholder { color: var(--muted); opacity: 0.6; }
     input:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,0.12); }
-
-    /* Platform checkboxes */
     .plat-row { display: flex; gap: 8px; flex-wrap: wrap; }
-    .plat-btn {
-      display: flex; align-items: center; gap: 6px;
-      background: var(--bg); border: 2px solid var(--border);
-      border-radius: 10px; padding: 8px 12px;
-      cursor: pointer; transition: all 0.15s;
-      font-size: 0.82rem; font-weight: 700; color: var(--text);
-      user-select: none; flex: 1; justify-content: center;
-    }
+    .plat-btn { display: flex; align-items: center; gap: 6px; background: var(--bg); border: 2px solid var(--border); border-radius: 10px; padding: 8px 12px; cursor: pointer; transition: all 0.15s; font-size: 0.82rem; font-weight: 700; color: var(--text); user-select: none; flex: 1; justify-content: center; }
     .plat-btn:hover { border-color: var(--blue2); background: var(--blueL); }
-    .plat-btn.selected { border-color: var(--blue) !important; background: var(--blue2) !important; color: #fff !important; box-shadow: 0 0 0 2px rgba(30,136,229,0.2); }
+    .plat-btn.selected { border-color: var(--blue) !important; background: var(--blue2) !important; color: #fff !important; }
     .plat-btn input[type="checkbox"] { display: none; }
-
-    /* Error */
     #err-msg { display: none; color: var(--err); font-size: 0.83rem; font-weight: 600; margin-bottom: 14px; padding: 10px 14px; background: #FFEBEE; border-radius: 10px; border: 1px solid #FFCDD2; }
-
-    /* Submit button */
     .btn { width: 100%; background: linear-gradient(135deg, var(--blue), var(--blue2)); border: none; border-radius: 14px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; padding: 15px; cursor: pointer; box-shadow: 0 4px 18px rgba(21,101,192,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.15s, opacity 0.15s; margin-top: 6px; }
     .btn:hover { transform: translateY(-1px); }
     .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .spinner { display: none; width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
-
-    /* Current items */
     .current-title { font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; margin-bottom: 12px; margin-top: 20px; }
     .item-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(21,101,192,0.06); }
     .item-emoji { font-size: 1.5rem; flex-shrink: 0; }
@@ -109,20 +66,15 @@
     .item-status { font-size: 0.72rem; font-weight: 700; padding: 3px 10px; border-radius: 20px; flex-shrink: 0; }
     .status-pending { background: var(--orangeL); color: var(--orange); }
     .status-active  { background: var(--greenL);  color: var(--green); }
-
-    /* Limit card */
     .limit-card { display: none; background: var(--orangeL); border: 1px solid #FFCC80; border-radius: 16px; padding: 20px; text-align: center; margin-bottom: 20px; }
     .limit-icon  { font-size: 2.5rem; margin-bottom: 8px; }
-    .limit-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; color: var(--orange); margin-bottom: 4px; }
-    .limit-sub   { font-size: 0.83rem; color: #BF360C; }
-
-    /* Success */
+    .limit-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; color: var(--orange); margin-bottom: 6px; }
+    .limit-sub   { font-size: 0.83rem; color: #BF360C; line-height: 1.6; }
     #success-screen { display: none; text-align: center; background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 28px 22px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); margin-bottom: 20px; }
     .success-icon-wrap { width: 70px; height: 70px; background: linear-gradient(135deg, var(--blue), var(--blue2)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 16px; box-shadow: 0 4px 20px rgba(21,101,192,0.3); animation: pop 0.4s cubic-bezier(0.34,1.56,0.64,1) both; }
     .success-title { font-family: 'Baloo 2', cursive; font-size: 1.3rem; font-weight: 800; color: var(--blue); margin-bottom: 8px; }
     .success-msg   { font-size: 0.85rem; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
     .btn-outline { width: 100%; background: transparent; border: 2px solid var(--blue2); border-radius: 14px; color: var(--blue); font-family: 'Baloo 2', cursive; font-size: 1rem; font-weight: 700; padding: 13px; cursor: pointer; }
-
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes pop  { from { transform: scale(0); } to { transform: scale(1); } }
     @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
@@ -130,7 +82,6 @@
   </style>
 </head>
 <body>
-
 <div class="topbar">
   <div class="topbar-row">
     <div><a href="dashboard.html" class="back-btn">← Back</a></div>
@@ -154,21 +105,23 @@
   <!-- Limit reached -->
   <div class="limit-card" id="limit-card">
     <div class="limit-icon">🚫</div>
-    <div class="limit-title">Slot Limit Reached!</div>
-    <div class="limit-sub">You are already tracking 3 items — the maximum for free plan.<br/>Remove an existing item to add a new one.</div>
+    <div class="limit-title">All Slots Used!</div>
+    <div class="limit-sub">You have used all your tracking slots.<br/>
+      <strong>Earn more slots FREE!</strong> → Write a review for items that got deal alerts.<br/><br/>
+      <a href="review-earn.html" style="color:#E65100;font-weight:700;text-decoration:none;font-size:0.9rem;">🎁 Go to Review & Earn →</a>
+    </div>
   </div>
 
   <!-- Success screen -->
   <div id="success-screen">
     <div class="success-icon-wrap">🎯</div>
     <div class="success-title">Items Submitted!</div>
-    <div class="success-msg">Your item request(s) have been received!<br/>We'll review and activate within 24 hours.<br/><strong style="color:var(--blue)">You'll be notified via Email & Telegram! 📧</strong></div>
+    <div class="success-msg">Your item request(s) have been received!<br/>We'll review and activate within 24 hours.<br/><strong style="color:var(--blue)">You'll be notified via Email! 📧</strong></div>
     <button class="btn-outline" onclick="window.location.href='dashboard.html'">← Go to Dashboard</button>
   </div>
 
   <!-- Form -->
   <div id="form-section">
-
     <div id="err-msg"></div>
 
     <!-- Item 1 -->
@@ -238,7 +191,6 @@
       <span id="btn-text">Submit Item Request 🎯</span>
       <div class="spinner" id="spinner"></div>
     </button>
-
   </div>
 
   <!-- Current tracked items -->
@@ -257,6 +209,7 @@
 
   let currentUser      = null;
   let currentItemCount = 0;
+  let totalSlots       = 3;
 
   function togglePlat(el) {
     const cb = el.querySelector('input[type="checkbox"]');
@@ -267,11 +220,7 @@
   function checkOptional(n) {
     const val  = document.getElementById('name-' + n).value.trim();
     const card = document.getElementById('card-' + n);
-    if (val) {
-      card.classList.add('has-input');
-    } else {
-      card.classList.remove('has-input');
-    }
+    card.classList.toggle('has-input', !!val);
   }
 
   function getSelectedPlats(n) {
@@ -295,6 +244,7 @@
 
   async function loadCurrentItems() {
     try {
+      // Fetch user items
       const res = await fetch(
         `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&select=id,active,item_name,platform,created_at`,
         { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
@@ -302,17 +252,27 @@
       const items = res.ok ? await res.json() : [];
       currentItemCount = Array.isArray(items) ? items.length : 0;
 
-      const pct = (currentItemCount / MAX_ITEMS) * 100;
+      // ── CHANGE: Fetch bonus_slots from deallagi_subscribers ──
+      const subRes = await fetch(
+        `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+      );
+      const subData    = subRes.ok ? await subRes.json() : [];
+      const bonusSlots = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
+      totalSlots       = MAX_ITEMS + bonusSlots;
+      const remaining  = totalSlots - currentItemCount;
+
+      // Update slot bar
+      const pct = Math.min((currentItemCount / totalSlots) * 100, 100);
       document.getElementById('slots-fill').style.width = pct + '%';
-      document.getElementById('slots-text').textContent = `${currentItemCount} of ${MAX_ITEMS} items used`;
+      document.getElementById('slots-text').textContent =
+        `${currentItemCount} of ${totalSlots} slots used` +
+        (bonusSlots > 0 ? ` (includes ${bonusSlots} bonus 🎁)` : '');
 
-      const remaining = MAX_ITEMS - currentItemCount;
-
-      if (currentItemCount >= MAX_ITEMS) {
+      if (currentItemCount >= totalSlots) {
         document.getElementById('limit-card').style.display = 'block';
         document.getElementById('form-section').style.display = 'none';
       } else {
-        // Hide extra cards based on remaining slots
         if (remaining < 3) document.getElementById('card-3').style.display = remaining < 2 ? 'none' : 'block';
         if (remaining < 2) document.getElementById('card-2').style.display = 'none';
       }
@@ -334,33 +294,26 @@
       }
     } catch(e) {
       console.error(e);
-      document.getElementById('slots-text').textContent = '0 of 3 items used';
+      document.getElementById('slots-text').textContent = '0 of 3 slots used';
     }
   }
 
   async function handleSubmit() {
     hideErr();
+    const name1 = document.getElementById('name-1').value.trim();
+    const plat1 = getSelectedPlats(1);
+    const name2 = document.getElementById('name-2').value.trim();
+    const plat2 = getSelectedPlats(2);
+    const name3 = document.getElementById('name-3').value.trim();
+    const plat3 = getSelectedPlats(3);
 
-    const name1  = document.getElementById('name-1').value.trim();
-    const plat1  = getSelectedPlats(1);
-    const name2  = document.getElementById('name-2').value.trim();
-    const plat2  = getSelectedPlats(2);
-    const name3  = document.getElementById('name-3').value.trim();
-    const plat3  = getSelectedPlats(3);
-
-    // Validate item 1
     if (!name1) return showErr('Please enter a product name for Item 1.');
     if (!plat1.length) return showErr('Please select at least one platform for Item 1.');
-
-    // Validate item 2 if filled
     if (name2 && !plat2.length) return showErr('Please select a platform for Item 2.');
-    // Validate item 3 if filled
     if (name3 && !plat3.length) return showErr('Please select a platform for Item 3.');
 
-    // Build list of items to submit
-    const toSubmit = [];
-    const remaining = MAX_ITEMS - currentItemCount;
-
+    const remaining = totalSlots - currentItemCount;
+    const toSubmit  = [];
     toSubmit.push({ name: name1, platform: plat1.join(',') });
     if (name2 && toSubmit.length < remaining) toSubmit.push({ name: name2, platform: plat2.join(',') });
     if (name3 && toSubmit.length < remaining) toSubmit.push({ name: name3, platform: plat3.join(',') });
@@ -368,7 +321,6 @@
     if (toSubmit.length === 0) return showErr('Please enter at least one item.');
 
     setLoading(true);
-
     try {
       let successCount = 0;
       for (const item of toSubmit) {
@@ -380,16 +332,11 @@
             'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
             'Prefer': 'return=representation',
           },
-          body: JSON.stringify({
-            subscriber_id: currentUser.id,
-            item_name:     item.name,
-            platform:      item.platform,
-            active:        false,
-          })
+          body: JSON.stringify({ subscriber_id: currentUser.id, item_name: item.name, platform: item.platform, active: false })
         });
         if (res.ok) {
           successCount++;
-          // Check similar items in Supabase before notifying
+          // Check similar items
           let similarItems = '';
           try {
             const firstWord = encodeURIComponent(item.name.split(' ')[0]);
@@ -401,19 +348,16 @@
               const simItems = await simRes.json();
               const others = simItems.filter(s => s.item_name.toLowerCase() !== item.name.toLowerCase());
               if (others.length > 0) {
-                similarItems = '%0A%0A⚠️ Similar items in system:%0A' +
+                similarItems = '%0A%0A⚠️ Similar items:%0A' +
                   others.map(s => '→ ' + s.item_name + ' (' + (s.active ? '✅Active' : '⏳Pending') + ')').join('%0A');
               }
             }
           } catch(e) {}
-
-          // Telegram admin notification with similar items
-          const tgMsg = '🆕 DealLagi New Item!%0A%0A👤 ' + currentUser.name + ' (' + currentUser.mobile + ')%0A🏷️ Item: ' + item.name + '%0A🛒 Platform: ' + item.platform + similarItems + '%0A%0A✅ Correct name if needed → Approve in Supabase';
-          fetch('https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=' + tgMsg)
-            .catch(() => {});
+          // Telegram admin notification
+          const tgMsg = '🆕 DealLagi New Item!%0A%0A👤 ' + currentUser.name + ' (' + currentUser.mobile + ')%0A🏷️ ' + item.name + '%0A🛒 ' + item.platform + similarItems + '%0A%0A✅ Approve in Supabase';
+          fetch('https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=' + tgMsg).catch(() => {});
         }
       }
-
       setLoading(false);
       if (successCount > 0) {
         document.getElementById('form-section').style.display = 'none';
