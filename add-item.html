@@ -389,9 +389,27 @@
         });
         if (res.ok) {
           successCount++;
-          // Telegram admin notification
-          const tgMsg = `🆕 DealLagi New Item!%0A%0A👤 ${currentUser.name} (${currentUser.mobile})%0A🏷️ ${item.name}%0A🛒 ${item.platform}%0A%0A✅ Approve in Supabase`;
-          fetch(`https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=${tgMsg}`)
+          // Check similar items in Supabase before notifying
+          let similarItems = '';
+          try {
+            const firstWord = encodeURIComponent(item.name.split(' ')[0]);
+            const simRes = await fetch(
+              `${SUPA_URL}/rest/v1/user_items?item_name=ilike.*${firstWord}*&select=item_name,active&limit=5`,
+              { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+            );
+            if (simRes.ok) {
+              const simItems = await simRes.json();
+              const others = simItems.filter(s => s.item_name.toLowerCase() !== item.name.toLowerCase());
+              if (others.length > 0) {
+                similarItems = '%0A%0A⚠️ Similar items in system:%0A' +
+                  others.map(s => '→ ' + s.item_name + ' (' + (s.active ? '✅Active' : '⏳Pending') + ')').join('%0A');
+              }
+            }
+          } catch(e) {}
+
+          // Telegram admin notification with similar items
+          const tgMsg = '🆕 DealLagi New Item!%0A%0A👤 ' + currentUser.name + ' (' + currentUser.mobile + ')%0A🏷️ Item: ' + item.name + '%0A🛒 Platform: ' + item.platform + similarItems + '%0A%0A✅ Correct name if needed → Approve in Supabase';
+          fetch('https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=' + tgMsg)
             .catch(() => {});
         }
       }
