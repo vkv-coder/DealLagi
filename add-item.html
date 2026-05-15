@@ -102,6 +102,22 @@
     </div>
   </div>
 
+  <!-- Location Update -->
+  <div class="slots-card fadein" id="loc-card" style="margin-bottom:12px;">
+    <div class="slots-icon">📍</div>
+    <div class="slots-info">
+      <div class="slots-title">Your Deal Location</div>
+      <div id="loc-display" style="font-size:0.75rem;color:var(--muted);font-weight:600;margin-bottom:6px;">Loading...</div>
+      <button type="button" onclick="updateLocation()" id="loc-update-btn"
+        style="background:var(--blue);border:none;border-radius:8px;color:#fff;font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;padding:6px 12px;cursor:pointer;">
+        📍 Update My Location
+      </button>
+      <div style="font-size:0.68rem;color:var(--muted);font-style:italic;margin-top:4px;">
+        Deal alerts are based on this location
+      </div>
+    </div>
+  </div>
+
   <!-- Limit reached -->
   <div class="limit-card" id="limit-card">
     <div class="limit-icon">🚫</div>
@@ -240,6 +256,7 @@
     if (!saved) { window.location.href = '/'; return; }
     currentUser = JSON.parse(saved);
     await loadCurrentItems();
+    await loadUserLocation();
   }
 
   async function loadCurrentItems() {
@@ -370,6 +387,68 @@
       setLoading(false);
       showErr('Network error. Please try again.');
     }
+  }
+
+  // ── Location update ─────────────────────────────────────────
+  async function loadUserLocation() {
+    var display = document.getElementById('loc-display');
+    if (!currentUser) return;
+    var lat = currentUser.lat;
+    var lon = currentUser.lon;
+    if (lat && lon) {
+      display.textContent = 'LAT: ' + lat + ' | LON: ' + lon;
+      display.style.color = 'var(--green)';
+    } else {
+      display.textContent = 'No location set — please update!';
+      display.style.color = 'var(--err)';
+    }
+  }
+
+  function updateLocation() {
+    var btn     = document.getElementById('loc-update-btn');
+    var display = document.getElementById('loc-display');
+    if (!navigator.geolocation) {
+      display.textContent = 'GPS not supported.';
+      return;
+    }
+    btn.disabled    = true;
+    btn.textContent = '📍 Detecting...';
+    navigator.geolocation.getCurrentPosition(
+      async function(pos) {
+        var lat = parseFloat(pos.coords.latitude.toFixed(6));
+        var lon = parseFloat(pos.coords.longitude.toFixed(6));
+        // Update Supabase
+        await fetch(SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + currentUser.id, {
+          method: 'PATCH',
+          headers: {
+            'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
+            'Content-Type': 'application/json',
+            'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA
+          },
+          body: JSON.stringify({ lat: lat, lon: lon })
+        });
+        // Update localStorage
+        currentUser.lat = lat;
+        currentUser.lon = lon;
+        localStorage.setItem('dl_user', JSON.stringify(currentUser));
+        display.textContent = 'LAT: ' + lat + ' | LON: ' + lon;
+        display.style.color = 'var(--green)';
+        btn.textContent = '📍 Location Updated!';
+        btn.style.background = 'var(--green)';
+        setTimeout(function() {
+          btn.textContent = '📍 Update My Location';
+          btn.style.background = 'var(--blue)';
+          btn.disabled = false;
+        }, 2000);
+      },
+      function(err) {
+        display.textContent = 'Could not get location. Try again.';
+        display.style.color = 'var(--err)';
+        btn.textContent = '📍 Update My Location';
+        btn.disabled = false;
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
   }
 
   window.addEventListener('DOMContentLoaded', init);
