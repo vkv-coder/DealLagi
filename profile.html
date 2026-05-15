@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>DealLagi — My Profile</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>" />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --blue:    #1565C0; --blue2:   #1E88E5; --blue3:   #1976D2;
+      --blueL:   #E3F2FD; --blueM:   #BBDEFB; --bg:      #F0F6FF;
+      --card:    #FFFFFF; --border:  #C9DEFF; --text:    #0D1F3C;
+      --muted:   #5A7BA8; --err:     #D32F2F;
+      --green:   #2E7D32; --greenL:  #E8F5E9;
+      --orange:  #E65100; --orangeL: #FFF3E0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Nunito', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+
+    .topbar { background: linear-gradient(135deg, var(--blue), var(--blue2)); padding: 16px 20px 20px; position: relative; overflow: hidden; }
+    .topbar::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 80% 80% at 80% -20%, rgba(255,255,255,0.12) 0%, transparent 70%); pointer-events: none; }
+    .topbar-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; position: relative; z-index: 1; }
+    .back-btn { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); border-radius: 20px; padding: 5px 14px; color: #fff; font-size: 0.78rem; font-weight: 700; cursor: pointer; font-family: 'Nunito', sans-serif; text-decoration: none; display: inline-block; }
+    .topbar-title { font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 800; color: #fff; text-align: center; }
+
+    .wrap { padding: 20px 16px; max-width: 480px; margin: 0 auto; }
+
+    /* Avatar */
+    .avatar-card { background: linear-gradient(135deg, var(--blue), var(--blue2)); border-radius: 20px; padding: 24px 20px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 20px rgba(21,101,192,0.25); }
+    .avatar-icon { width: 72px; height: 72px; background: rgba(255,255,255,0.25); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 12px; }
+    .avatar-name { font-family: 'Baloo 2', cursive; font-size: 1.4rem; font-weight: 800; color: #fff; margin-bottom: 4px; }
+    .avatar-mobile { font-size: 0.85rem; color: rgba(255,255,255,0.8); font-weight: 600; }
+    .avatar-status { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 3px 12px; font-size: 0.72rem; font-weight: 700; color: #fff; margin-top: 8px; }
+
+    /* Section */
+    .section-card { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 18px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(21,101,192,0.07); }
+    .section-title { font-family: 'Baloo 2', cursive; font-size: 0.95rem; font-weight: 700; color: var(--text); margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+
+    /* Fields */
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-lbl { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 6px; }
+    input { width: 100%; background: var(--bg); border: 1.5px solid var(--border); border-radius: 10px; color: var(--text); font-family: 'Nunito', sans-serif; font-size: 0.95rem; padding: 11px 14px; outline: none; transition: border-color 0.2s; }
+    input:focus { border-color: var(--blue2); box-shadow: 0 0 0 3px rgba(30,136,229,0.12); }
+    input:disabled { background: #f5f5f5; color: var(--muted); cursor: not-allowed; border-color: #e0e0e0; }
+    input::placeholder { color: var(--muted); opacity: 0.6; }
+    .readonly-note { font-size: 0.7rem; color: var(--muted); margin-top: 4px; font-style: italic; }
+
+    /* Telegram helper */
+    .tg-helper { background: #E3F2FD; border: 1px solid #BBDEFB; border-radius: 8px; padding: 10px 12px; margin-top: 8px; font-size: 0.75rem; color: var(--blue3); line-height: 1.5; }
+    .tg-helper a { color: var(--blue); font-weight: 700; }
+
+    /* Location */
+    .loc-wrap { display: flex; align-items: center; gap: 10px; }
+    .loc-btn { background: var(--blue); border: none; border-radius: 10px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 0.85rem; font-weight: 700; padding: 11px 16px; cursor: pointer; white-space: nowrap; transition: background 0.2s; flex-shrink: 0; }
+    .loc-btn.success { background: var(--green); }
+    .loc-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .loc-status { font-size: 0.78rem; color: var(--muted); font-weight: 600; flex: 1; }
+    .loc-status.ok  { color: var(--green); font-weight: 700; }
+    .loc-status.err { color: var(--err); }
+
+    /* Save button */
+    .save-btn { width: 100%; background: linear-gradient(135deg, var(--blue), var(--blue2)); border: none; border-radius: 14px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700; padding: 14px; cursor: pointer; box-shadow: 0 4px 18px rgba(21,101,192,0.35); display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; transition: opacity 0.2s; }
+    .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .spinner { display: none; width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+    /* Success toast */
+    .toast { display: none; position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--green); color: #fff; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 0.9rem; box-shadow: 0 4px 20px rgba(0,0,0,0.2); z-index: 999; animation: slideUp 0.3s ease; }
+
+    /* Error */
+    .err-msg { display: none; color: var(--err); font-size: 0.82rem; font-weight: 600; padding: 10px 14px; background: #FFEBEE; border-radius: 10px; margin-bottom: 14px; }
+
+    /* Loading */
+    #loading { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 100; flex-direction: column; gap: 12px; }
+    .loader { width: 40px; height: 40px; border: 4px solid var(--blueM); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    .loader-text { font-family: 'Baloo 2', cursive; color: var(--blue); font-size: 1rem; }
+
+    @keyframes spin    { to { transform: rotate(360deg); } }
+    @keyframes slideUp { from { transform: translateX(-50%) translateY(20px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+    @keyframes fadeUp  { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
+    .fadein { animation: fadeUp 0.4s ease both; }
+  </style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="loader"></div>
+  <div class="loader-text">Loading profile...</div>
+</div>
+
+<div id="main" style="display:none;">
+  <div class="topbar">
+    <div class="topbar-row">
+      <div><a href="dashboard.html" class="back-btn">← Back</a></div>
+      <div class="topbar-title">👤 My Profile</div>
+      <div></div>
+    </div>
+  </div>
+
+  <div class="wrap">
+
+    <!-- Avatar -->
+    <div class="avatar-card fadein">
+      <div class="avatar-icon">👤</div>
+      <div class="avatar-name" id="av-name">—</div>
+      <div class="avatar-mobile" id="av-mobile">—</div>
+      <div class="avatar-status" id="av-status">Active</div>
+    </div>
+
+    <div class="err-msg" id="err-msg"></div>
+
+    <!-- Personal Info -->
+    <div class="section-card fadein">
+      <div class="section-title">👤 Personal Information</div>
+
+      <div class="field">
+        <label class="field-lbl">Full Name</label>
+        <input type="text" id="inp-name" placeholder="Your full name" />
+      </div>
+
+      <div class="field">
+        <label class="field-lbl">📱 Mobile Number</label>
+        <input type="tel" id="inp-mobile" disabled />
+        <div class="readonly-note">🔒 Mobile number cannot be changed</div>
+      </div>
+
+      <div class="field">
+        <label class="field-lbl">📧 Email</label>
+        <input type="email" id="inp-email" placeholder="your@email.com" />
+      </div>
+
+      <div class="field">
+        <label class="field-lbl">✈️ Telegram Chat ID</label>
+        <input type="text" id="inp-telegram" placeholder="e.g. 8507770594" inputmode="numeric" />
+        <div class="tg-helper">
+          💡 To find your Chat ID:<br/>
+          1. Open Telegram → Search <strong>@userinfobot</strong><br/>
+          2. Send any message → it replies with your numeric ID<br/>
+          3. Copy that number and paste here
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-lbl">🏙️ City</label>
+        <input type="text" id="inp-city" placeholder="e.g. Vadodara" />
+      </div>
+    </div>
+
+    <!-- Location -->
+    <div class="section-card fadein">
+      <div class="section-title">📍 Deal Location</div>
+      <div class="field">
+        <label class="field-lbl">Current Location (LAT / LON)</label>
+        <div class="loc-wrap">
+          <button type="button" class="loc-btn" id="loc-btn" onclick="updateLocation()">
+            📍 Update Location
+          </button>
+          <div class="loc-status" id="loc-status">Tap to update</div>
+        </div>
+        <div style="font-size:0.72rem;color:var(--muted);font-style:italic;margin-top:8px;">
+          Travelling? Update your location to get deals near you!<br/>
+          Alerts will be based on this location.
+        </div>
+      </div>
+    </div>
+
+    <!-- Save -->
+    <button class="save-btn" id="save-btn" onclick="saveProfile()">
+      <span id="save-text">💾 Save Profile</span>
+      <div class="spinner" id="spinner"></div>
+    </button>
+
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✅ Profile saved successfully!</div>
+
+<script>
+  const SUPA_URL = 'https://wrzpgultvahxbrgooibn.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndyenBndWx0dmFoeGJyZ29vaWJuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc1Mzc2MTcsImV4cCI6MjA5MzExMzYxN30.sZM4GQiwom34d7TjeK_Jc_n8KYoC8VhI48jfq71dwb8';
+  const SCHEMA   = 'deallagi';
+  const H        = { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Accept-Profile': SCHEMA };
+
+  var currentUser = null;
+  var newLat      = null;
+  var newLon      = null;
+
+  async function init() {
+    var saved = localStorage.getItem('dl_user');
+    if (!saved) { window.location.href = '/'; return; }
+    currentUser = JSON.parse(saved);
+
+    // Fetch fresh data from Supabase
+    var res = await fetch(
+      SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + currentUser.id +
+      '&select=id,name,mobile,email,telegram_id,city,lat,lon,status',
+      { headers: H }
+    );
+    var data = res.ok ? await res.json() : [];
+    if (!data.length) { window.location.href = '/'; return; }
+    var user = data[0];
+
+    // Update localStorage with fresh data
+    currentUser = Object.assign(currentUser, user);
+    localStorage.setItem('dl_user', JSON.stringify(currentUser));
+
+    // Populate UI
+    document.getElementById('av-name').textContent   = user.name || '—';
+    document.getElementById('av-mobile').textContent = '+91 ' + (user.mobile || '');
+    document.getElementById('av-status').textContent = (user.status || 'active').toUpperCase();
+    document.getElementById('inp-name').value        = user.name    || '';
+    document.getElementById('inp-mobile').value      = user.mobile  || '';
+    document.getElementById('inp-email').value       = user.email   || '';
+    document.getElementById('inp-telegram').value    = user.telegram_id || '';
+    document.getElementById('inp-city').value        = user.city    || '';
+
+    // Show current location
+    if (user.lat && user.lon) {
+      document.getElementById('loc-status').textContent = 'LAT: ' + user.lat + ' | LON: ' + user.lon;
+      document.getElementById('loc-status').className   = 'loc-status ok';
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').style.display    = 'block';
+  }
+
+  // ── Update Location ───────────────────────────────────────────
+  function updateLocation() {
+    var btn    = document.getElementById('loc-btn');
+    var status = document.getElementById('loc-status');
+
+    if (!navigator.geolocation) {
+      status.textContent = 'GPS not supported.';
+      status.className   = 'loc-status err';
+      return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = '📍 Detecting...';
+    status.textContent = 'Fetching your location...';
+    status.className   = 'loc-status';
+
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        newLat = parseFloat(pos.coords.latitude.toFixed(6));
+        newLon = parseFloat(pos.coords.longitude.toFixed(6));
+        btn.textContent = '📍 Location Set ✅';
+        btn.className   = 'loc-btn success';
+        btn.disabled    = false;
+        status.textContent = 'LAT: ' + newLat + ' | LON: ' + newLon;
+        status.className   = 'loc-status ok';
+      },
+      function(err) {
+        btn.textContent = '📍 Try Again';
+        btn.disabled    = false;
+        var msg = 'Could not get location.';
+        if (err.code === 1) msg = 'Permission denied. Allow location in browser settings.';
+        if (err.code === 2) msg = 'Location unavailable. Try again.';
+        if (err.code === 3) msg = 'Timed out. Try again.';
+        status.textContent = msg;
+        status.className   = 'loc-status err';
+      },
+      { timeout: 10000, enableHighAccuracy: true }
+    );
+  }
+
+  // ── Save Profile ──────────────────────────────────────────────
+  async function saveProfile() {
+    var name     = document.getElementById('inp-name').value.trim();
+    var email    = document.getElementById('inp-email').value.trim();
+    var telegram = document.getElementById('inp-telegram').value.trim();
+    var city     = document.getElementById('inp-city').value.trim();
+    var errEl    = document.getElementById('err-msg');
+
+    errEl.style.display = 'none';
+
+    if (!name) {
+      errEl.textContent = 'Please enter your name.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Validate telegram — must be numeric if provided
+    if (telegram && !/^\d+$/.test(telegram)) {
+      errEl.textContent = 'Telegram Chat ID must be a number (e.g. 8507770594).';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    var btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    document.getElementById('save-text').textContent = 'Saving...';
+    document.getElementById('spinner').style.display = 'block';
+
+    try {
+      var payload = {
+        name:        name,
+        email:       email   || null,
+        telegram_id: telegram || null,
+        city:        city     || null,
+      };
+
+      // Include new location if updated
+      if (newLat && newLon) {
+        payload.lat = newLat;
+        payload.lon = newLon;
+      }
+
+      var res = await fetch(
+        SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + currentUser.id,
+        {
+          method: 'PATCH',
+          headers: Object.assign({}, H, {
+            'Content-Type':    'application/json',
+            'Content-Profile': SCHEMA
+          }),
+          body: JSON.stringify(payload)
+        }
+      );
+
+      if (res.ok || res.status === 204) {
+        // Update localStorage
+        currentUser.name        = name;
+        currentUser.email       = email;
+        currentUser.telegram_id = telegram;
+        currentUser.city        = city;
+        if (newLat) { currentUser.lat = newLat; currentUser.lon = newLon; }
+        localStorage.setItem('dl_user', JSON.stringify(currentUser));
+
+        // Update avatar
+        document.getElementById('av-name').textContent = name;
+
+        // Show toast
+        var toast = document.getElementById('toast');
+        toast.style.display = 'block';
+        setTimeout(function() { toast.style.display = 'none'; }, 3000);
+      } else {
+        errEl.textContent = 'Save failed. Please try again.';
+        errEl.style.display = 'block';
+      }
+    } catch(e) {
+      errEl.textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      document.getElementById('save-text').textContent = '💾 Save Profile';
+      document.getElementById('spinner').style.display = 'none';
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
