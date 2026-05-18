@@ -56,6 +56,96 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
     .fadein { animation: fadeUp 0.5s ease both; }
+
+    /* ── Referral Card ── */
+    .referral-card {
+      background: linear-gradient(135deg, #1a237e, #283593);
+      border-radius: 16px;
+      padding: 16px 18px;
+      color: #fff;
+      position: relative;
+      overflow: hidden;
+    }
+    .referral-card::before {
+      content: '🎟️';
+      position: absolute;
+      right: -10px;
+      top: -10px;
+      font-size: 5rem;
+      opacity: 0.08;
+    }
+    .referral-title {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .referral-sub {
+      font-size: 0.75rem;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+    .referral-code-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin-bottom: 10px;
+    }
+    .referral-code-label {
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex: 1;
+    }
+    .referral-code-value {
+      font-family: 'Baloo 2', cursive;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #FFD54F;
+      letter-spacing: 2px;
+      flex: 1;
+      text-align: center;
+    }
+    .copy-btn {
+      background: #FFD54F;
+      color: #1a237e;
+      border: none;
+      border-radius: 10px;
+      padding: 7px 14px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      flex-shrink: 0;
+      transition: transform 0.1s;
+    }
+    .copy-btn:active { transform: scale(0.95); }
+    .referral-note {
+      font-size: 0.72rem;
+      color: rgba(255,255,255,0.6);
+      text-align: center;
+    }
+    .copy-toast {
+      display: none;
+      background: #43A047;
+      color: #fff;
+      border-radius: 10px;
+      padding: 8px 14px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-align: center;
+      margin-top: 8px;
+    }
   </style>
 </head>
 <body>
@@ -71,8 +161,8 @@
       <div><button class="logout-btn" onclick="handleLogout()">Logout</button></div>
       <div class="brand-small"><span class="logo">🏷️</span><span class="name">DealLagi</span></div>
       <div class="topbar-spacer" style="display:flex;justify-content:flex-end;">
-  <a href="profile.html" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 14px;color:#fff;font-size:0.78rem;font-weight:700;text-decoration:none;">👤 Profile</a>
-</div>
+        <a href="profile.html" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.3);border-radius:20px;padding:5px 14px;color:#fff;font-size:0.78rem;font-weight:700;text-decoration:none;">👤 Profile</a>
+      </div>
     </div>
     <div class="welcome-row">
       <div class="welcome-text">Hi, <span id="user-name">there</span>! 👋</div>
@@ -85,7 +175,9 @@
     <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-value" id="stat-items">—</div><div class="stat-label">Items Tracking</div></div>
     <div class="stat-card"><div class="stat-icon">🏙️</div><div class="stat-value" id="stat-city">—</div><div class="stat-label">Your City</div></div>
   </div>
-<div class="section fadein" style="margin-top:0;margin-bottom:4px;">
+
+  <!-- Review & Earn Banner -->
+  <div class="section fadein" style="margin-top:0;margin-bottom:12px;">
     <div onclick="window.location.href='review-earn.html'" style="background:linear-gradient(135deg,#F9A825,#FF8F00);border-radius:16px;padding:14px 18px;display:flex;align-items:center;gap:14px;cursor:pointer;box-shadow:0 4px 16px rgba(249,168,37,0.3);">
       <div style="font-size:2rem;flex-shrink:0;">🎁</div>
       <div style="flex:1;">
@@ -95,6 +187,28 @@
       <div style="color:#fff;font-size:1.2rem;flex-shrink:0;">→</div>
     </div>
   </div>
+
+  <!-- Referral Card -->
+  <div class="section fadein" style="margin-bottom:16px;">
+    <div class="referral-card">
+      <div class="referral-title">🎟️ Refer & Earn</div>
+      <div class="referral-sub">
+        Share your code with friends.<br/>
+        When they join — <strong>both of you</strong> get 1 extra item slot FREE!
+      </div>
+      <div class="referral-code-row">
+        <div>
+          <div class="referral-code-label">Your Code</div>
+          <div class="referral-code-value" id="ref-code">—</div>
+        </div>
+        <button class="copy-btn" onclick="copyReferral()">📋 Copy Msg</button>
+      </div>
+      <div class="copy-toast" id="copy-toast">✅ WhatsApp message copied! Paste & send to friends.</div>
+      <div class="referral-note">Na deal chute, na dil tute! 😄</div>
+    </div>
+  </div>
+
+  <!-- My Tracked Items -->
   <div class="section fadein">
     <div class="section-header">
       <div class="section-title">📦 My Tracked Items</div>
@@ -115,26 +229,74 @@
   const SCHEMA   = 'deallagi';
 
   let currentUser = null;
+  let referralCode = '';
 
   async function init() {
     const saved = localStorage.getItem('dl_user');
-    // FIX: redirect to / not login.html
     if (!saved) { window.location.href = '/'; return; }
     currentUser = JSON.parse(saved);
 
     document.getElementById('user-name').textContent = currentUser.name.split(' ')[0];
-    // FIX: use city string directly, not city_id
     document.getElementById('stat-city').textContent = (currentUser.city || 'VDR').substring(0, 3).toUpperCase();
 
-    await loadUserItems();
+    await Promise.all([loadUserItems(), loadReferralCode()]);
 
     document.getElementById('loading').style.display = 'none';
     document.getElementById('main').style.display    = 'block';
   }
 
+  async function loadReferralCode() {
+    try {
+      const res = await fetch(
+        `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=referral_code`,
+        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+      );
+      const data = res.ok ? await res.json() : [];
+      if (data && data.length > 0 && data[0].referral_code) {
+        referralCode = data[0].referral_code;
+        document.getElementById('ref-code').textContent = referralCode;
+      } else {
+        document.getElementById('ref-code').textContent = '—';
+      }
+    } catch(e) {
+      document.getElementById('ref-code').textContent = '—';
+    }
+  }
+
+  function copyReferral() {
+    if (!referralCode || referralCode === '—') return;
+    const firstName = currentUser.name.split(' ')[0];
+    const msg =
+`Hey! I'm ${firstName} and I use DealLagi to track grocery deals on Swiggy, Blinkit & Zepto. 🛒
+
+I save a lot — and now you should too! 😄
+
+Use my referral code *${referralCode}* when you register and we both get 1 extra item to track FREE! 🎉
+
+Register here 👉 https://deallagi.com/register.html
+
+Na deal chute, na dil tute! 😄`;
+
+    navigator.clipboard.writeText(msg).then(() => {
+      const toast = document.getElementById('copy-toast');
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    }).catch(() => {
+      // Fallback for older browsers
+      const ta = document.createElement('textarea');
+      ta.value = msg;
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      const toast = document.getElementById('copy-toast');
+      toast.style.display = 'block';
+      setTimeout(() => { toast.style.display = 'none'; }, 3000);
+    });
+  }
+
   async function loadUserItems() {
     try {
-      // FIX: subscriber_id not user_id
       const res = await fetch(
         `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&select=id,active,item_name,platform&limit=50`,
         { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
