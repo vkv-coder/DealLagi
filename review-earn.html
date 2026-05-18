@@ -51,12 +51,64 @@
     .write-btn { width: 100%; background: linear-gradient(135deg, var(--gold), #FF8F00); border: none; border-radius: 10px; color: #fff; font-family: 'Baloo 2', cursive; font-size: 0.9rem; font-weight: 700; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .write-btn:hover { opacity: 0.92; }
 
-    /* DONE CARD */
-    .done-card { background: var(--greenL); border: 1px solid #A5D6A7; border-radius: 14px; padding: 12px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
-    .done-info { flex: 1; }
-    .done-name { font-weight: 700; font-size: 0.85rem; color: var(--green); }
-    .done-meta { font-size: 0.70rem; color: #388E3C; margin-top: 2px; }
-    .done-badge { background: var(--green); color: #fff; border-radius: 20px; padding: 3px 10px; font-size: 0.70rem; font-weight: 700; flex-shrink: 0; }
+    /* MY REVIEWS CARD */
+    .review-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(21,101,192,0.07);
+    }
+    .review-card-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .review-card-emoji { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+    .review-card-info { flex: 1; }
+    .review-card-name { font-weight: 700; font-size: 0.88rem; color: var(--text); margin-bottom: 3px; }
+    .review-card-stars { font-size: 1rem; letter-spacing: 1px; margin-bottom: 3px; }
+    .review-card-date { font-size: 0.68rem; color: var(--muted); }
+    .review-card-badge {
+      background: var(--greenL);
+      color: var(--green);
+      border-radius: 20px;
+      padding: 3px 10px;
+      font-size: 0.70rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .review-card-details {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+    .review-chip {
+      background: var(--blueL);
+      border: 1px solid var(--blueM);
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 0.75rem;
+      color: var(--blue3);
+      font-weight: 700;
+    }
+    .review-chip.green {
+      background: var(--greenL);
+      border-color: #A5D6A7;
+      color: var(--green);
+    }
+    .review-remarks {
+      background: var(--bg);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.5;
+    }
 
     /* EMPTY */
     .empty-state { background: var(--card); border: 1.5px dashed var(--blueM); border-radius: 14px; padding: 28px 20px; text-align: center; }
@@ -116,6 +168,19 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     @keyframes fadeUp { from { opacity:0; transform:translateY(16px); } to { opacity:1; transform:translateY(0); } }
     .fadein { animation: fadeUp 0.4s ease both; }
+
+    /* TABS */
+    .tabs { display: flex; gap: 8px; margin-bottom: 16px; }
+    .tab-btn {
+      flex: 1; padding: 10px; border: none; border-radius: 12px;
+      font-family: 'Baloo 2', cursive; font-size: 0.88rem; font-weight: 700;
+      cursor: pointer; transition: all 0.2s;
+      background: var(--card); border: 1.5px solid var(--border); color: var(--muted);
+    }
+    .tab-btn.active {
+      background: var(--blue); color: #fff; border-color: var(--blue);
+      box-shadow: 0 2px 8px rgba(21,101,192,0.25);
+    }
   </style>
 </head>
 <body>
@@ -149,16 +214,20 @@
       </div>
     </div>
 
-    <!-- Pending Reviews -->
-    <div id="pending-section">
-      <div class="sec-title">⏳ Awaiting Your Review</div>
+    <!-- Tabs -->
+    <div class="tabs fadein">
+      <button class="tab-btn active" id="tab-pending" onclick="switchTab('pending')">⏳ Write Review</button>
+      <button class="tab-btn" id="tab-myreviews" onclick="switchTab('myreviews')">📋 My Reviews</button>
+    </div>
+
+    <!-- Pending Reviews Tab -->
+    <div id="tab-pending-content">
       <div id="pending-list"></div>
     </div>
 
-    <!-- Completed Reviews -->
-    <div id="done-section" style="display:none; margin-top:20px;">
-      <div class="sec-title">✅ Reviews Submitted</div>
-      <div id="done-list"></div>
+    <!-- My Reviews Tab -->
+    <div id="tab-myreviews-content" style="display:none;">
+      <div id="myreviews-list"></div>
     </div>
 
   </div>
@@ -225,11 +294,12 @@
   const SCHEMA   = 'deallagi';
   const GAS_URL  = 'https://script.google.com/macros/s/AKfycbzcFrs-VtN6ZfPed10Btq_HdYUFmFbIJqTUvZGc4pGToR3Sx4F-RV-MazPZskrDUyzQZw/exec';
 
-  let currentUser   = null;
-  let selectedStar  = 0;
-  let activeItem    = null;   // item being reviewed
-  let alertedItems  = [];
-  let reviewedItems = [];
+  let currentUser  = null;
+  let selectedStar = 0;
+  let activeItem   = null;
+  let alertedItems = [];
+  let reviewedItems= [];
+  let activeTab    = 'pending';
 
   const H = { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA };
 
@@ -243,93 +313,136 @@
   }
 
   async function loadData() {
-    // 1. Load alerted user_items (active=true means alert was sent)
+    // 1. Load user's active tracked items
     const r1 = await fetch(
       `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&active=eq.true&select=id,item_name,platform,created_at`,
       { headers: H }
     );
     alertedItems = r1.ok ? await r1.json() : [];
 
-    // 2. Load submitted reviews by this user
+    // 2. Load submitted reviews by mobile (correct column in GAS reviews table)
     const r2 = await fetch(
-      `${SUPA_URL}/rest/v1/reviews?subscriber_id=eq.${currentUser.id}&select=id,item_name,amount_saved,star_rating,remarks,created_at`,
+      `${SUPA_URL}/rest/v1/reviews?mobile=eq.${encodeURIComponent(currentUser.mobile)}&select=id,item_name,amount_saved,star_rating,stars,remarks,created_at&order=created_at.desc`,
       { headers: H }
     );
     reviewedItems = r2.ok ? await r2.json() : [];
 
-    // 3. Load bonus_slots from subscriber
+    // 3. Load bonus_slots
     const r3 = await fetch(
       `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
       { headers: H }
     );
-    const subData = r3.ok ? await r3.json() : [];
+    const subData    = r3.ok ? await r3.json() : [];
     const bonusSlots = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
     document.getElementById('bonus-count').textContent = bonusSlots;
 
-    renderLists();
+    renderPending();
+    renderMyReviews();
   }
 
-  function renderLists() {
-    const reviewedNames = new Set(reviewedItems.map(r => r.item_name.toLowerCase()));
+  // ── Tab switching ─────────────────────────────────────────────
+  function switchTab(tab) {
+    activeTab = tab;
+    document.getElementById('tab-pending-content').style.display   = tab === 'pending'   ? 'block' : 'none';
+    document.getElementById('tab-myreviews-content').style.display = tab === 'myreviews' ? 'block' : 'none';
+    document.getElementById('tab-pending').classList.toggle('active',   tab === 'pending');
+    document.getElementById('tab-myreviews').classList.toggle('active', tab === 'myreviews');
+  }
 
-    // Items alerted but NOT yet reviewed
+  // ── Render pending reviews ─────────────────────────────────────
+  function renderPending() {
+    const reviewedNames = new Set(reviewedItems.map(r => (r.item_name || '').toLowerCase()));
     const pending = alertedItems.filter(i => !reviewedNames.has(i.item_name.toLowerCase()));
-    // Items alerted AND reviewed
-    const done    = alertedItems.filter(i => reviewedNames.has(i.item_name.toLowerCase()));
+    const emojis  = ['🛒','📦','🏷️','🍦','🧃','🍕','🧴','🥤'];
+    const el      = document.getElementById('pending-list');
 
-    const emojis = ['🛒','📦','🏷️','🍦','🧃','🍕','🧴','🥤'];
-
-    // Render pending
-    const pendingList = document.getElementById('pending-list');
     if (pending.length === 0) {
-      pendingList.innerHTML = `
+      el.innerHTML = `
         <div class="empty-state">
           <div class="empty-icon">🔔</div>
           <div class="empty-title">No pending reviews!</div>
           <div class="empty-sub">Once you receive a deal alert for your item,<br/>it will appear here for review.</div>
         </div>`;
-    } else {
-      pendingList.innerHTML = pending.map((item, idx) => `
-        <div class="pending-card fadein">
-          <div class="pending-top">
-            <div class="pending-emoji">${emojis[idx % emojis.length]}</div>
-            <div class="pending-info">
-              <div class="pending-name">${item.item_name}</div>
-              <div class="pending-meta">${item.platform}</div>
-            </div>
-            <div class="pending-badge">⏳ Review Due</div>
-          </div>
-          <button class="write-btn" onclick="openModal('${item.item_name.replace(/'/g,"\\'")}')">
-            ✍️ Write Review → Earn +1 Slot
-          </button>
-        </div>`).join('');
+      return;
     }
 
-    // Render done
-    if (done.length > 0) {
-      document.getElementById('done-section').style.display = 'block';
-      document.getElementById('done-list').innerHTML = done.map((item, idx) => {
-        const review = reviewedItems.find(r => r.item_name.toLowerCase() === item.item_name.toLowerCase());
-        return `
-          <div class="done-card">
-            <div class="pending-emoji">${emojis[idx % emojis.length]}</div>
-            <div class="done-info">
-              <div class="done-name">${item.item_name}</div>
-              <div class="done-meta">Saved ₹${review ? review.amount_saved : '—'} · ${'⭐'.repeat(review ? review.star_rating : 0)}</div>
-            </div>
-            <div class="done-badge">✅ Reviewed</div>
-          </div>`;
-      }).join('');
-    }
+    el.innerHTML = pending.map((item, idx) => `
+      <div class="pending-card fadein">
+        <div class="pending-top">
+          <div class="pending-emoji">${emojis[idx % emojis.length]}</div>
+          <div class="pending-info">
+            <div class="pending-name">${item.item_name}</div>
+            <div class="pending-meta">${item.platform}</div>
+          </div>
+          <div class="pending-badge">⏳ Review Due</div>
+        </div>
+        <button class="write-btn" onclick="openModal('${item.item_name.replace(/'/g,"\\'")}')">
+          ✍️ Write Review → Earn +1 Slot
+        </button>
+      </div>`).join('');
   }
 
+  // ── Render My Reviews ─────────────────────────────────────────
+  function renderMyReviews() {
+    const el     = document.getElementById('myreviews-list');
+    const emojis = ['🛒','📦','🏷️','🍦','🧃','🍕','🧴','🥤'];
+
+    if (!reviewedItems || reviewedItems.length === 0) {
+      el.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">No reviews yet!</div>
+          <div class="empty-sub">Submit your first review from the "Write Review" tab<br/>and earn a bonus item slot!</div>
+        </div>`;
+      return;
+    }
+
+    el.innerHTML = reviewedItems.map((r, idx) => {
+      // Format date
+      let dateStr = '';
+      if (r.created_at) {
+        const d = new Date(r.created_at);
+        dateStr = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+      }
+
+      // Stars display
+      const starCount = r.star_rating || 0;
+      const starsHtml = '⭐'.repeat(starCount) + '☆'.repeat(5 - starCount);
+
+      // Remarks
+      const remarksHtml = r.remarks
+        ? `<div class="review-remarks">"${r.remarks}"</div>`
+        : '';
+
+      return `
+        <div class="review-card fadein">
+          <div class="review-card-top">
+            <div class="review-card-emoji">${emojis[idx % emojis.length]}</div>
+            <div class="review-card-info">
+              <div class="review-card-name">${r.item_name || '—'}</div>
+              <div class="review-card-stars">${starsHtml}</div>
+              <div class="review-card-date">${dateStr}</div>
+            </div>
+            <div class="review-card-badge">✅ Reviewed</div>
+          </div>
+          <div class="review-card-details">
+            <div class="review-chip green">💰 Saved ₹${r.amount_saved || 0}</div>
+            <div class="review-chip">⭐ ${starCount}/5 Stars</div>
+            ${r.stars ? `<div class="review-chip">${r.stars}</div>` : ''}
+          </div>
+          ${remarksHtml}
+        </div>`;
+    }).join('');
+  }
+
+  // ── Modal ─────────────────────────────────────────────────────
   function openModal(itemName) {
-    activeItem = itemName;
+    activeItem   = itemName;
     selectedStar = 0;
-    document.getElementById('modal-item-name').textContent = '🏷️ ' + itemName;
-    document.getElementById('inp-amount').value  = '';
-    document.getElementById('inp-remarks').value = '';
-    document.getElementById('modal-err').style.display = 'none';
+    document.getElementById('modal-item-name').textContent   = '🏷️ ' + itemName;
+    document.getElementById('inp-amount').value              = '';
+    document.getElementById('inp-remarks').value             = '';
+    document.getElementById('modal-err').style.display       = 'none';
     setStar(0);
     document.getElementById('modal-overlay').classList.add('open');
   }
@@ -346,12 +459,12 @@
     });
   }
 
+  // ── Submit review ─────────────────────────────────────────────
   async function submitReview() {
     const amount  = parseFloat(document.getElementById('inp-amount').value);
     const remarks = document.getElementById('inp-remarks').value.trim();
     const errEl   = document.getElementById('modal-err');
 
-    // Validate
     if (!amount || amount <= 0) {
       errEl.textContent = 'Please enter amount saved (₹).';
       errEl.style.display = 'block'; return;
@@ -363,11 +476,13 @@
     errEl.style.display = 'none';
 
     const btn = document.getElementById('modal-submit-btn');
-    btn.disabled = true;
+    btn.disabled    = true;
     btn.textContent = 'Submitting...';
 
     try {
-      // 1. Insert review to Supabase
+      const stars = '★'.repeat(selectedStar) + '☆'.repeat(5 - selectedStar);
+
+      // 1. Insert review to Supabase (with mobile for easy lookup)
       const r1 = await fetch(`${SUPA_URL}/rest/v1/reviews`, {
         method: 'POST',
         headers: {
@@ -377,24 +492,26 @@
           'Prefer': 'return=representation'
         },
         body: JSON.stringify({
-          subscriber_id: currentUser.id,
-          item_name:     activeItem,
-          amount_saved:  amount,
-          star_rating:   selectedStar,
-          remarks:       remarks || null
+          mobile:       currentUser.mobile,
+          name:         currentUser.name,
+          item_name:    activeItem,
+          amount_saved: amount,
+          star_rating:  selectedStar,
+          stars:        stars,
+          remarks:      remarks || null
         })
       });
 
       if (!r1.ok) throw new Error('Review insert failed');
 
-      // 2. Increment bonus_slots in deallagi_subscribers
+      // 2. Increment bonus_slots
       const r2 = await fetch(
         `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
         { headers: H }
       );
-      const subData    = r2.ok ? await r2.json() : [];
-      const curBonus   = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
-      const newBonus   = curBonus + 1;
+      const subData  = r2.ok ? await r2.json() : [];
+      const curBonus = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
+      const newBonus = curBonus + 1;
 
       await fetch(`${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}`, {
         method: 'PATCH',
@@ -407,23 +524,29 @@
       });
 
       // 3. Log to GAS Reviews sheet
-      const stars = '★'.repeat(selectedStar) + '☆'.repeat(5 - selectedStar);
-      fetch(`${GAS_URL}?action=save_review&name=${encodeURIComponent(currentUser.name)}&mobile=${encodeURIComponent(currentUser.mobile)}&item=${encodeURIComponent(activeItem)}&amount=${amount}&stars=${encodeURIComponent(stars)}&rating=${selectedStar}&remarks=${encodeURIComponent(remarks)}`)
-        .catch(() => {});
+      fetch(`${GAS_URL}?action=save_review` +
+        `&name=${encodeURIComponent(currentUser.name)}` +
+        `&mobile=${encodeURIComponent(currentUser.mobile)}` +
+        `&item=${encodeURIComponent(activeItem)}` +
+        `&amount=${amount}` +
+        `&stars=${encodeURIComponent(stars)}` +
+        `&rating=${selectedStar}` +
+        `&remarks=${encodeURIComponent(remarks)}`
+      ).catch(() => {});
 
-      // 4. Close modal, show success
+      // 4. Close + show success
       closeModal();
       document.getElementById('bonus-count').textContent = newBonus;
       document.getElementById('success-modal').classList.add('open');
 
-      // Refresh lists
+      // Refresh data
       await loadData();
 
     } catch(e) {
       errEl.textContent = 'Submission failed. Please try again.';
       errEl.style.display = 'block';
     } finally {
-      btn.disabled = false;
+      btn.disabled    = false;
       btn.textContent = '🎁 Submit & Earn Slot';
     }
   }
