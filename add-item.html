@@ -365,14 +365,14 @@
               const simItems = await simRes.json();
               const others = simItems.filter(s => s.item_name.toLowerCase() !== item.name.toLowerCase());
               if (others.length > 0) {
-                similarItems = '%0A%0A⚠️ Similar items:%0A' +
-                  others.map(s => '→ ' + s.item_name + ' (' + (s.active ? '✅Active' : '⏳Pending') + ')').join('%0A');
+                similarItems = '\n\n⚠️ Similar items:\n' +
+                  others.map(s => '→ ' + s.item_name + ' (' + (s.active ? '✅Active' : '⏳Pending') + ')').join('\n');
               }
             }
           } catch(e) {}
           // Telegram admin notification
-          const tgMsg = '🆕 DealLagi New Item!%0A%0A👤 ' + currentUser.name + ' (' + currentUser.mobile + ')%0A🏷️ ' + item.name + '%0A🛒 ' + item.platform + similarItems + '%0A%0A✅ Approve in Supabase';
-          fetch('https://api.telegram.org/bot8755990830:AAF4SBuKaGc4FXfjGqNdqVTOFCwk3vj8LYg/sendMessage?chat_id=8507770594&text=' + tgMsg).catch(() => {});
+          const tgMsg = '🆕 DealLagi New Item!\n\n👤 ' + currentUser.name + ' (' + currentUser.mobile + ')\n🏷️ ' + item.name + '\n🛒 ' + item.platform + similarItems + '\n\n✅ Approve in Supabase';
+          fetch('https://telegram-notify.unigoods2026.workers.dev/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({msg:tgMsg})}).catch(() => {});
         }
       }
       setLoading(false);
