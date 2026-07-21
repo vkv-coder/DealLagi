@@ -223,15 +223,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,
     <button class="modal-close" onclick="closeModals()">✕</button>
     <div class="modal-brand"><span class="d">Deal</span><span class="l">Lagi</span></div>
     <h2>Reset your PIN</h2>
-    <p class="modal-sub">Enter your registered mobile and email. We'll verify and reset your PIN.</p>
+    <p class="modal-sub">Enter your registered mobile and email. We'll email you a code to confirm it's really you.</p>
     <div class="error-msg" id="forgotPinError"></div>
     <div id="forgotPinForm">
       <div class="form-group"><label>Mobile number</label><input type="tel" id="forgot_mobile" placeholder="10-digit mobile number"></div>
       <div class="form-group"><label>Registered email</label><input type="email" id="forgot_email" placeholder="your@email.com"></div>
       <button class="btn-submit blue" id="forgotPinBtn" onclick="handleForgotPin()">🔍 Verify & Reset</button>
     </div>
-    <div class="success-box" id="forgotPinSuccess" style="margin-top:1rem;display:none"><div class="success-icon">📧</div><h3>Verified!</h3><p>Set your new PIN below.</p></div>
+    <div class="success-box" id="forgotPinSuccess" style="margin-top:1rem;display:none"><div class="success-icon">📧</div><h3>Check your email!</h3><p>Enter the 6-digit code we sent, and your new PIN below.</p></div>
     <div id="newPinForm" style="display:none;margin-top:1rem">
+      <div class="form-group"><label>Code from email</label><input type="text" id="reset_otp" placeholder="6-digit code" maxlength="6"></div>
       <div class="form-group"><label>New PIN (4 digits)</label><input type="password" id="reset_pin_new" placeholder="Enter new 4-digit PIN" maxlength="4"></div>
       <div class="form-group"><label>Confirm new PIN</label><input type="password" id="reset_pin_confirm" placeholder="Re-enter new PIN" maxlength="4"></div>
       <button class="btn-submit" id="resetPinBtn" onclick="handleResetPin()">✅ Save new PIN</button>
@@ -321,18 +322,29 @@ async function handleForgotPin(){
     const user=data[0];
     if((user.email||'').toLowerCase().trim()!==email.toLowerCase().trim()){errEl.textContent='Email does not match our records.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;return;}
     if(user.status!=='active'){errEl.textContent='Account not active yet. Please wait for approval.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;return;}
+    const otp=String(Math.floor(100000+Math.random()*900000));
+    const expires=new Date(Date.now()+10*60*1000).toISOString();
+    await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}`,{method:'PATCH',headers:{...SUPA_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({reset_otp:otp,reset_otp_expires:expires})});
+    await fetch('https://telegram-notify.unigoods2026.workers.dev/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'sendEmail',to:user.email,subject:'Your DealLagi PIN reset code',html:'<p>Your DealLagi PIN reset code is:</p><h2 style="letter-spacing:4px;">'+otp+'</h2><p style="font-size:13px;color:#666;">This code expires in 10 minutes. If you didn\'t request this, you can ignore this email.</p>'})});
     _forgotMobile=mobile;document.getElementById('forgotPinForm').style.display='none';document.getElementById('forgotPinSuccess').style.display='block';document.getElementById('newPinForm').style.display='block';
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;}
 }
 async function handleResetPin(){
+  const otp=document.getElementById('reset_otp').value.trim();
   const newPin=document.getElementById('reset_pin_new').value.trim(),confirmPin=document.getElementById('reset_pin_confirm').value.trim();
   const errEl=document.getElementById('forgotPinError');errEl.style.display='none';
+  if(!/^[0-9]{6}$/.test(otp)){errEl.textContent='Please enter the 6-digit code from your email.';errEl.style.display='block';return}
   if(!newPin||!confirmPin){errEl.textContent='Please enter and confirm your new PIN.';errEl.style.display='block';return}
   if(!/^[0-9]{4}$/.test(newPin)){errEl.textContent='PIN must be exactly 4 digits.';errEl.style.display='block';return}
   if(newPin!==confirmPin){errEl.textContent='PINs do not match.';errEl.style.display='block';return}
   const btn=document.getElementById('resetPinBtn');btn.textContent='Saving...';btn.disabled=true;
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${_forgotMobile}`,{method:'PATCH',headers:{...SUPA_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({pin:newPin})});
+    const check=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${_forgotMobile}&select=reset_otp,reset_otp_expires`,{headers:SUPA_HEADERS});
+    const rows=await check.json();
+    if(!rows||!rows.length||rows[0].reset_otp!==otp||new Date(rows[0].reset_otp_expires)<new Date()){
+      errEl.textContent='Incorrect or expired code. Please request a new one.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;return;
+    }
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${_forgotMobile}`,{method:'PATCH',headers:{...SUPA_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({pin:newPin,reset_otp:null,reset_otp_expires:null})});
     if(res.ok||res.status===204){document.getElementById('newPinForm').innerHTML='<div class="success-box" style="display:block"><div class="success-icon">🎉</div><h3>PIN reset successfully!</h3><p>You can now sign in with your new PIN.</p></div>';setTimeout(()=>{closeModals();openSignin();},2000);}
     else{errEl.textContent='Failed to reset PIN. Please try again.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;}
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;}
