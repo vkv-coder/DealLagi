@@ -313,24 +313,27 @@
   }
 
   async function loadData() {
+    const rpcHeaders = Object.assign({}, H, { 'Content-Type': 'application/json', 'Content-Profile': SCHEMA });
+
     // 1. Load user's active tracked items
     const r1 = await fetch(
-      `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&active=eq.true&select=id,item_name,platform,created_at`,
-      { headers: H }
+      `${SUPA_URL}/rest/v1/rpc/dl_get_items`,
+      { method: 'POST', headers: rpcHeaders, body: JSON.stringify({ p_token: currentUser.session_token }) }
     );
-    alertedItems = r1.ok ? await r1.json() : [];
+    const allItems = r1.ok ? await r1.json() : [];
+    alertedItems = (allItems || []).filter(i => i.active);
 
-    // 2. Load submitted reviews by mobile (correct column in GAS reviews table)
+    // 2. Load submitted reviews (own reviews only, resolved server-side from session)
     const r2 = await fetch(
-      `${SUPA_URL}/rest/v1/reviews?mobile=eq.${encodeURIComponent(currentUser.mobile)}&select=id,item_name,amount_saved,star_rating,stars,remarks,created_at&order=created_at.desc`,
-      { headers: H }
+      `${SUPA_URL}/rest/v1/rpc/dl_get_my_reviews`,
+      { method: 'POST', headers: rpcHeaders, body: JSON.stringify({ p_token: currentUser.session_token }) }
     );
     reviewedItems = r2.ok ? await r2.json() : [];
 
     // 3. Load bonus_slots
     const r3 = await fetch(
-      `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
-      { headers: H }
+      `${SUPA_URL}/rest/v1/rpc/dl_get_profile`,
+      { method: 'POST', headers: rpcHeaders, body: JSON.stringify({ p_token: currentUser.session_token }) }
     );
     const subData    = r3.ok ? await r3.json() : [];
     const bonusSlots = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
@@ -482,47 +485,25 @@
     try {
       const stars = '★'.repeat(selectedStar) + '☆'.repeat(5 - selectedStar);
 
-      // 1. Insert review to Supabase (with mobile for easy lookup)
-      const r1 = await fetch(`${SUPA_URL}/rest/v1/reviews`, {
+      // Submit review + credit bonus slot atomically, server-side
+      const r1 = await fetch(`${SUPA_URL}/rest/v1/rpc/dl_submit_review`, {
         method: 'POST',
         headers: {
           'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
           'Content-Type': 'application/json',
-          'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
-          
+          'Content-Profile': SCHEMA,
         },
         body: JSON.stringify({
-          subscriber_id: currentUser.id,
-          mobile:       currentUser.mobile,
-          name:         currentUser.name,
-          item_name:    activeItem,
-          amount_saved: amount,
-          star_rating:  selectedStar,
-          stars:        stars,
-          remarks:      remarks || null
+          p_token: currentUser.session_token,
+          p_item_name: activeItem,
+          p_amount_saved: amount,
+          p_star_rating: selectedStar,
+          p_stars: stars,
+          p_remarks: remarks || null
         })
       });
 
       if (!r1.ok) throw new Error('Review insert failed');
-
-      // 2. Increment bonus_slots
-      const r2 = await fetch(
-        `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
-        { headers: H }
-      );
-      const subData  = r2.ok ? await r2.json() : [];
-      const curBonus = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
-      const newBonus = curBonus + 1;
-
-      await fetch(`${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}`, {
-        method: 'PATCH',
-        headers: {
-          'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
-          'Content-Type': 'application/json',
-          'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA
-        },
-        body: JSON.stringify({ bonus_slots: newBonus })
-      });
 
       // 3. Log to GAS Reviews sheet
       fetch(`${GAS_URL}?action=save_review` +
@@ -537,7 +518,6 @@
 
       // 4. Close + show success
       closeModal();
-      document.getElementById('bonus-count').textContent = newBonus;
       document.getElementById('success-modal').classList.add('open');
 
       // Refresh data

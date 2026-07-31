@@ -263,16 +263,17 @@
     try {
       // Fetch user items
       const res = await fetch(
-        `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&select=id,active,item_name,platform,created_at`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+        `${SUPA_URL}/rest/v1/rpc/dl_get_items`,
+        { method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Content-Profile': SCHEMA, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_token: currentUser.session_token }) }
       );
       const items = res.ok ? await res.json() : [];
       currentItemCount = Array.isArray(items) ? items.length : 0;
 
-      // ── CHANGE: Fetch bonus_slots from deallagi_subscribers ──
       const subRes = await fetch(
-        `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=bonus_slots`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+        `${SUPA_URL}/rest/v1/rpc/dl_get_profile`,
+        { method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Content-Profile': SCHEMA, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_token: currentUser.session_token }) }
       );
       const subData    = subRes.ok ? await subRes.json() : [];
       const bonusSlots = subData.length > 0 ? (subData[0].bonus_slots || 0) : 0;
@@ -341,25 +342,24 @@
     try {
       let successCount = 0;
       for (const item of toSubmit) {
-        const res = await fetch(`${SUPA_URL}/rest/v1/user_items`, {
+        const res = await fetch(`${SUPA_URL}/rest/v1/rpc/dl_add_item`, {
           method: 'POST',
           headers: {
             'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`,
             'Content-Type': 'application/json',
-            'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
-            'Prefer': 'return=representation',
+            'Content-Profile': SCHEMA,
           },
-          body: JSON.stringify({ subscriber_id: currentUser.id, item_name: item.name, platform: item.platform, active: false })
+          body: JSON.stringify({ p_token: currentUser.session_token, p_item_name: item.name, p_platform: item.platform })
         });
         if (res.ok) {
           successCount++;
           // Check similar items
           let similarItems = '';
           try {
-            const firstWord = encodeURIComponent(item.name.split(' ')[0]);
             const simRes = await fetch(
-              `${SUPA_URL}/rest/v1/user_items?item_name=ilike.*${firstWord}*&select=item_name,active&limit=5`,
-              { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+              `${SUPA_URL}/rest/v1/rpc/dl_similar_items`,
+              { method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Content-Profile': SCHEMA, 'Content-Type': 'application/json' },
+                body: JSON.stringify({ p_search: item.name.split(' ')[0] }) }
             );
             if (simRes.ok) {
               const simItems = await simRes.json();
@@ -418,14 +418,14 @@
         var lat = parseFloat(pos.coords.latitude.toFixed(6));
         var lon = parseFloat(pos.coords.longitude.toFixed(6));
         // Update Supabase
-        await fetch(SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + currentUser.id, {
-          method: 'PATCH',
+        await fetch(SUPA_URL + '/rest/v1/rpc/dl_update_location', {
+          method: 'POST',
           headers: {
             'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
             'Content-Type': 'application/json',
-            'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA
+            'Content-Profile': SCHEMA
           },
-          body: JSON.stringify({ lat: lat, lon: lon })
+          body: JSON.stringify({ p_token: currentUser.session_token, p_lat: lat, p_lon: lon })
         });
         // Update localStorage
         currentUser.lat = lat;

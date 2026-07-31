@@ -246,21 +246,9 @@
   }
 
   async function loadReferralCode() {
-    try {
-      const res = await fetch(
-        `${SUPA_URL}/rest/v1/deallagi_subscribers?id=eq.${currentUser.id}&select=referral_code`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
-      );
-      const data = res.ok ? await res.json() : [];
-      if (data && data.length > 0 && data[0].referral_code) {
-        referralCode = data[0].referral_code;
-        document.getElementById('ref-code').textContent = referralCode;
-      } else {
-        document.getElementById('ref-code').textContent = '—';
-      }
-    } catch(e) {
-      document.getElementById('ref-code').textContent = '—';
-    }
+    // referral_code is already part of the session profile returned at login/registration
+    referralCode = currentUser.referral_code || null;
+    document.getElementById('ref-code').textContent = referralCode || '—';
   }
 
   function copyReferral() {
@@ -298,8 +286,9 @@ Na deal chute, na dil tute! 😄`;
   async function loadUserItems() {
     try {
       const res = await fetch(
-        `${SUPA_URL}/rest/v1/user_items?subscriber_id=eq.${currentUser.id}&select=id,active,item_name,platform&limit=50`,
-        { headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Accept-Profile': SCHEMA } }
+        `${SUPA_URL}/rest/v1/rpc/dl_get_items`,
+        { method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': `Bearer ${SUPA_KEY}`, 'Content-Profile': SCHEMA, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ p_token: currentUser.session_token }) }
       );
       const userItems = res.ok ? await res.json() : [];
 

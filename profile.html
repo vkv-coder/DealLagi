@@ -194,9 +194,8 @@
 
     // Fetch fresh data from Supabase
     var res = await fetch(
-      SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + currentUser.id +
-      '&select=id,name,mobile,email,telegram_id,city,lat,lon,status',
-      { headers: H }
+      SUPA_URL + '/rest/v1/rpc/dl_get_profile',
+      { method: 'POST', headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Content-Profile': SCHEMA }), body: JSON.stringify({ p_token: currentUser.session_token }) }
     );
     var data = res.ok ? await res.json() : [];
     if (!data.length) { window.location.href = '/'; return; }
@@ -296,22 +295,19 @@
 
     try {
       var payload = {
-        name:        name,
-        email:       email   || null,
-        telegram_id: telegram || null,
-        city:        city     || null,
+        p_token: currentUser.session_token,
+        p_name: name,
+        p_email: email || null,
+        p_telegram_id: telegram || null,
+        p_city: city || null,
+        p_lat: (newLat && newLon) ? newLat : null,
+        p_lon: (newLat && newLon) ? newLon : null,
       };
 
-      // Include new location if updated
-      if (newLat && newLon) {
-        payload.lat = newLat;
-        payload.lon = newLon;
-      }
-
       var res = await fetch(
-        SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + currentUser.id,
+        SUPA_URL + '/rest/v1/rpc/dl_update_profile',
         {
-          method: 'PATCH',
+          method: 'POST',
           headers: Object.assign({}, H, {
             'Content-Type':    'application/json',
             'Content-Profile': SCHEMA

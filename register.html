@@ -294,8 +294,9 @@ async function validateReferralCode() {
 
   try {
     var res = await fetch(
-      SUPA_URL + '/rest/v1/deallagi_subscribers?referral_code=eq.' + code + '&select=id,name',
-      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Accept-Profile': SCHEMA } }
+      SUPA_URL + '/rest/v1/rpc/dl_lookup_referrer',
+      { method: 'POST', headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Content-Profile': SCHEMA, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ p_code: code }) }
     );
     var data = await res.json();
     if (data.length > 0) {
@@ -361,39 +362,19 @@ async function handleRegister() {
   setLoading(true);
 
   try {
-    // Check if already registered
-    var checkRes = await fetch(
-      SUPA_URL + '/rest/v1/deallagi_subscribers?mobile=eq.' + mobile + '&select=id',
-      { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Accept-Profile': SCHEMA } }
-    );
-    var existing = await checkRes.json();
-    if (existing.length > 0) {
-      setLoading(false);
-      return showErr('This mobile is already registered. Please login.');
-    }
-
-    // Generate referral code for new user
-    var myReferralCode = generateReferralCode(name, mobile);
-
-    // Register in deallagi_subscribers
-    var res = await fetch(SUPA_URL + '/rest/v1/deallagi_subscribers', {
+    // Register (server-side: checks duplicate mobile, resolves referral, credits
+    // referrer atomically, generates the referral code, and issues a session token)
+    var res = await fetch(SUPA_URL + '/rest/v1/rpc/dl_register_with_referral', {
       method: 'POST',
       headers: {
         'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
         'Content-Type': 'application/json',
-        'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
-        'Prefer': 'return=representation',
+        'Content-Profile': SCHEMA,
       },
       body: JSON.stringify({
-        name:          name,
-        mobile:        mobile,
-        city:          'Pending',
-        lat:           userLat,
-        lon:           userLon,
-        status:        'pending',
-        referral_code: myReferralCode,
-        referred_by:   validReferrerId ? refCode : '',
-        bonus_slots:   validReferrerId ? 1 : 0,  // +1 for using referral
+        p_name: name, p_mobile: mobile, p_city: 'Pending',
+        p_lat: userLat, p_lon: userLon,
+        p_referral_code: validReferrerId ? refCode : null,
       })
     });
 
@@ -401,59 +382,19 @@ async function handleRegister() {
     if (!res.ok) {
       console.error(data);
       setLoading(false);
-      return showErr('Registration failed. Please try again.');
+      return showErr(data && data.message && data.message.includes('already registered') ? 'This mobile is already registered. Please login.' : 'Registration failed. Please try again.');
     }
 
     var user = data[0];
 
-    // Credit referrer +1 bonus slot
-    if (validReferrerId) {
-      try {
-        // Get referrer's current bonus_slots
-        var refRes = await fetch(
-          SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + validReferrerId + '&select=bonus_slots',
-          { headers: { 'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY, 'Accept-Profile': SCHEMA } }
-        );
-        var refData = await refRes.json();
-        var currentBonus = (refData[0] && refData[0].bonus_slots) ? refData[0].bonus_slots : 0;
-
-        // Update referrer +1
-        await fetch(
-          SUPA_URL + '/rest/v1/deallagi_subscribers?id=eq.' + validReferrerId,
-          {
-            method: 'PATCH',
-            headers: {
-              'apikey': SUPA_KEY, 'Authorization': 'Bearer ' + SUPA_KEY,
-              'Content-Type': 'application/json',
-              'Accept-Profile': SCHEMA, 'Content-Profile': SCHEMA,
-            },
-            body: JSON.stringify({ bonus_slots: currentBonus + 1 })
-          }
-        );
-        console.log('Referrer credited +1 slot');
-      } catch(refErr) {
-        console.error('Referrer credit failed:', refErr);
-        // Non-fatal — registration still succeeds
-      }
-    }
-
     // Store session
-    localStorage.setItem('dl_user', JSON.stringify({
-      id:            user.id,
-      name:          user.name,
-      mobile:        user.mobile,
-      city:          user.city,
-      lat:           user.lat,
-      lon:           user.lon,
-      referral_code: myReferralCode,
-      bonus_slots:   user.bonus_slots || 0,
-    }));
+    localStorage.setItem('dl_user', JSON.stringify(user));
 
     setLoading(false);
     document.getElementById('reg-card').style.display    = 'none';
     document.getElementById('success-screen').style.display = 'block';
     document.getElementById('success-name').textContent  = '👋 ' + user.name + ' · +91 ' + mobile;
-    document.getElementById('success-ref-code').textContent = myReferralCode;
+    document.getElementById('success-ref-code').textContent = user.referral_code;
 
   } catch(e) {
     console.error(e);

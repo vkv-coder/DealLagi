@@ -278,15 +278,19 @@ async function handleSignin(){
   if(!mobile){errEl.textContent='Please enter your mobile number.';errEl.style.display='block';return}
   const btn=document.getElementById('signinBtn');btn.textContent='Checking...';btn.disabled=true;
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}&select=*`,{headers:SUPA_HEADERS});
-    const data=await res.json();
-    if(!data||data.length===0){errEl.textContent='Mobile number not found. Please sign up first.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
-    const user=data[0];
-    if(user.status==='pending'){errEl.textContent='Your account is pending approval. You will be notified by email once activated.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
-    if(!user.pin){closeModals();openSetPin(mobile);btn.textContent='🔐 Sign in';btn.disabled=false;return;}
+    const chk=await fetch(`${SUPABASE_URL}/rest/v1/rpc/dl_check_login_mode`,{method:'POST',headers:SUPA_HEADERS,body:JSON.stringify({p_mobile:mobile})});
+    const chkRows=await chk.json();
+    const chkInfo=chkRows&&chkRows[0];
+    if(!chkInfo){errEl.textContent='Mobile number not found. Please sign up first.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
+    if(chkInfo.status==='pending'){errEl.textContent='Your account is pending approval. You will be notified by email once activated.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
+    if(!chkInfo.has_pin){closeModals();openSetPin(mobile);btn.textContent='🔐 Sign in';btn.disabled=false;return;}
     if(!pin){errEl.textContent='Please enter your PIN.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
-    if(user.pin!==pin){errEl.textContent='Incorrect PIN. Please try again.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
-    localStorage.setItem('dl_user',JSON.stringify({id:user.id,name:user.name,mobile:user.mobile,city:user.city||''}));
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/dl_login`,{method:'POST',headers:SUPA_HEADERS,body:JSON.stringify({p_mobile:mobile,p_pin:pin})});
+    if(!res.ok){errEl.textContent='Incorrect PIN. Please try again.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
+    const rows=await res.json();
+    const user=rows&&rows[0];
+    if(!user){errEl.textContent='Incorrect PIN. Please try again.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;return;}
+    localStorage.setItem('dl_user',JSON.stringify(user));
     window.location.href='/dashboard.html';
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='🔐 Sign in';btn.disabled=false;}
 }
@@ -298,12 +302,14 @@ async function handleSetPin(){
   if(newPin!==confirmPin){errEl.textContent='PINs do not match. Please try again.';errEl.style.display='block';return}
   const btn=document.getElementById('setPinBtn');btn.textContent='Saving...';btn.disabled=true;
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}`,{method:'PATCH',headers:{...SUPA_HEADERS,'Prefer':'return=representation'},body:JSON.stringify({pin:newPin})});
-    if(res.ok||res.status===200||res.status===204){
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/dl_set_pin`,{method:'POST',headers:SUPA_HEADERS,body:JSON.stringify({p_mobile:mobile,p_pin:newPin})});
+    if(res.ok){
+      const token=await res.json();
       document.getElementById('setPinBtn').style.display='none';document.getElementById('setPinSuccess').style.display='block';
-      const r2=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}&select=*`,{headers:SUPA_HEADERS});
-      const d=await r2.json();
-      if(d&&d.length>0)localStorage.setItem('dl_user',JSON.stringify({id:d[0].id,name:d[0].name,mobile:d[0].mobile,city:d[0].city||''}));
+      const prof=await fetch(`${SUPABASE_URL}/rest/v1/rpc/dl_get_profile`,{method:'POST',headers:SUPA_HEADERS,body:JSON.stringify({p_token:token})});
+      const profRows=await prof.json();
+      const p=profRows&&profRows[0];
+      if(p)localStorage.setItem('dl_user',JSON.stringify(Object.assign({},p,{session_token:token})));
       setTimeout(()=>{window.location.href='/dashboard.html';},1500);
     }else{errEl.textContent='Failed to set PIN. Please try again.';errEl.style.display='block';btn.textContent='✅ Set PIN & Login';btn.disabled=false;}
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='✅ Set PIN & Login';btn.disabled=false;}
@@ -316,16 +322,8 @@ async function handleForgotPin(){
   if(!/^[0-9]{10}$/.test(mobile)){errEl.textContent='Please enter a valid 10-digit mobile number.';errEl.style.display='block';return}
   const btn=document.getElementById('forgotPinBtn');btn.textContent='Verifying...';btn.disabled=true;
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}&select=*`,{headers:SUPA_HEADERS});
-    const data=await res.json();
-    if(!data||data.length===0){errEl.textContent='Mobile number not found.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;return;}
-    const user=data[0];
-    if((user.email||'').toLowerCase().trim()!==email.toLowerCase().trim()){errEl.textContent='Email does not match our records.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;return;}
-    if(user.status!=='active'){errEl.textContent='Account not active yet. Please wait for approval.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;return;}
-    const otp=String(Math.floor(100000+Math.random()*900000));
-    const expires=new Date(Date.now()+10*60*1000).toISOString();
-    await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${mobile}`,{method:'PATCH',headers:{...SUPA_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({reset_otp:otp,reset_otp_expires:expires})});
-    await fetch('https://telegram-notify.unigoods2026.workers.dev/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'sendEmail',to:user.email,subject:'Your DealLagi PIN reset code',html:'<p>Your DealLagi PIN reset code is:</p><h2 style="letter-spacing:4px;">'+otp+'</h2><p style="font-size:13px;color:#666;">This code expires in 10 minutes. If you didn\'t request this, you can ignore this email.</p>'})});
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/dl_request_pin_reset`,{method:'POST',headers:SUPA_HEADERS,body:JSON.stringify({p_mobile:mobile,p_email:email})});
+    if(!res.ok){errEl.textContent='Mobile number or email not found.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;return;}
     _forgotMobile=mobile;document.getElementById('forgotPinForm').style.display='none';document.getElementById('forgotPinSuccess').style.display='block';document.getElementById('newPinForm').style.display='block';
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='🔍 Verify & Reset';btn.disabled=false;}
 }
@@ -339,14 +337,9 @@ async function handleResetPin(){
   if(newPin!==confirmPin){errEl.textContent='PINs do not match.';errEl.style.display='block';return}
   const btn=document.getElementById('resetPinBtn');btn.textContent='Saving...';btn.disabled=true;
   try{
-    const check=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${_forgotMobile}&select=reset_otp,reset_otp_expires`,{headers:SUPA_HEADERS});
-    const rows=await check.json();
-    if(!rows||!rows.length||rows[0].reset_otp!==otp||new Date(rows[0].reset_otp_expires)<new Date()){
-      errEl.textContent='Incorrect or expired code. Please request a new one.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;return;
-    }
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/deallagi_subscribers?mobile=eq.${_forgotMobile}`,{method:'PATCH',headers:{...SUPA_HEADERS,'Prefer':'return=minimal'},body:JSON.stringify({pin:newPin,reset_otp:null,reset_otp_expires:null})});
-    if(res.ok||res.status===204){document.getElementById('newPinForm').innerHTML='<div class="success-box" style="display:block"><div class="success-icon">🎉</div><h3>PIN reset successfully!</h3><p>You can now sign in with your new PIN.</p></div>';setTimeout(()=>{closeModals();openSignin();},2000);}
-    else{errEl.textContent='Failed to reset PIN. Please try again.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;}
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/rpc/dl_verify_reset_and_set_pin`,{method:'POST',headers:SUPA_HEADERS,body:JSON.stringify({p_mobile:_forgotMobile,p_otp:otp,p_new_pin:newPin})});
+    if(res.ok){document.getElementById('newPinForm').innerHTML='<div class="success-box" style="display:block"><div class="success-icon">🎉</div><h3>PIN reset successfully!</h3><p>You can now sign in with your new PIN.</p></div>';setTimeout(()=>{closeModals();openSignin();},2000);}
+    else{errEl.textContent='Incorrect or expired code. Please request a new one.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;}
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;}
 }
 </script>
