@@ -27,6 +27,7 @@ begin
         body := jsonb_build_object(
           'action', 'sendEmail',
           'to', NEW.email,
+          'fromName', 'DealLagi',
           'subject', 'Your DealLagi account is active',
           'html', '<p>Hi ' || coalesce(NEW.name, '') || ',</p>'
             || '<p>Your account on <b>DealLagi</b> has been approved and is now active. You can log in and start using the app:</p>'
