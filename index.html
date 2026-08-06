@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>DealLagi — अब कोई डील न छूटे!</title>
 <meta name="description" content="Smart price alerts for Swiggy Instamart, Blinkit & Zepto. Get instant Email &amp; Telegram alerts on major grocery discounts.">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#E65100">
+<link rel="icon" href="./icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="./icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;700&family=Hind:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -341,6 +345,12 @@ async function handleResetPin(){
     if(res.ok){document.getElementById('newPinForm').innerHTML='<div class="success-box" style="display:block"><div class="success-icon">🎉</div><h3>PIN reset successfully!</h3><p>You can now sign in with your new PIN.</p></div>';setTimeout(()=>{closeModals();openSignin();},2000);}
     else{errEl.textContent='Incorrect or expired code. Please request a new one.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;}
   }catch(e){errEl.textContent='Network error. Please try again.';errEl.style.display='block';btn.textContent='✅ Save new PIN';btn.disabled=false;}
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+  });
 }
 </script>
 </body>
