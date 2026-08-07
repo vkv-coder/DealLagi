@@ -241,10 +241,13 @@
     document.getElementById('user-name').textContent = currentUser.name.split(' ')[0];
     document.getElementById('stat-city').textContent = (currentUser.city || 'VDR').substring(0, 3).toUpperCase();
 
-    await Promise.all([loadUserItems(), loadReferralCode()]);
-
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main').style.display    = 'block';
+    try {
+      await Promise.all([loadUserItems(), loadReferralCode()]);
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main').style.display    = 'block';
+    } catch (err) {
+      document.getElementById('loading').innerHTML = '<div class="loader-text">⚠️ Could not load dashboard. <a href="javascript:location.reload()" style="color:inherit;text-decoration:underline;">Retry</a></div>';
+    }
   }
 
   async function loadReferralCode() {

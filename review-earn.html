@@ -307,9 +307,13 @@
     const saved = localStorage.getItem('dl_user');
     if (!saved) { window.location.href = '/'; return; }
     currentUser = JSON.parse(saved);
-    await loadData();
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main').style.display    = 'block';
+    try {
+      await loadData();
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main').style.display    = 'block';
+    } catch (err) {
+      document.getElementById('loading').innerHTML = '<div class="loader-text">⚠️ Could not load. <a href="javascript:location.reload()" style="color:inherit;text-decoration:underline;">Retry</a></div>';
+    }
   }
 
   async function loadData() {

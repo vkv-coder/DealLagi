@@ -192,37 +192,41 @@
     if (!saved) { window.location.href = '/'; return; }
     currentUser = JSON.parse(saved);
 
-    // Fetch fresh data from Supabase
-    var res = await fetch(
-      SUPA_URL + '/rest/v1/rpc/dl_get_profile',
-      { method: 'POST', headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Content-Profile': SCHEMA }), body: JSON.stringify({ p_token: currentUser.session_token }) }
-    );
-    var data = res.ok ? await res.json() : [];
-    if (!data.length) { window.location.href = '/'; return; }
-    var user = data[0];
+    try {
+      // Fetch fresh data from Supabase
+      var res = await fetch(
+        SUPA_URL + '/rest/v1/rpc/dl_get_profile',
+        { method: 'POST', headers: Object.assign({}, H, { 'Content-Type': 'application/json', 'Content-Profile': SCHEMA }), body: JSON.stringify({ p_token: currentUser.session_token }) }
+      );
+      var data = res.ok ? await res.json() : [];
+      if (!data.length) { window.location.href = '/'; return; }
+      var user = data[0];
 
-    // Update localStorage with fresh data
-    currentUser = Object.assign(currentUser, user);
-    localStorage.setItem('dl_user', JSON.stringify(currentUser));
+      // Update localStorage with fresh data
+      currentUser = Object.assign(currentUser, user);
+      localStorage.setItem('dl_user', JSON.stringify(currentUser));
 
-    // Populate UI
-    document.getElementById('av-name').textContent   = user.name || '—';
-    document.getElementById('av-mobile').textContent = '+91 ' + (user.mobile || '');
-    document.getElementById('av-status').textContent = (user.status || 'active').toUpperCase();
-    document.getElementById('inp-name').value        = user.name    || '';
-    document.getElementById('inp-mobile').value      = user.mobile  || '';
-    document.getElementById('inp-email').value       = user.email   || '';
-    document.getElementById('inp-telegram').value    = user.telegram_id || '';
-    document.getElementById('inp-city').value        = user.city    || '';
+      // Populate UI
+      document.getElementById('av-name').textContent   = user.name || '—';
+      document.getElementById('av-mobile').textContent = '+91 ' + (user.mobile || '');
+      document.getElementById('av-status').textContent = (user.status || 'active').toUpperCase();
+      document.getElementById('inp-name').value        = user.name    || '';
+      document.getElementById('inp-mobile').value      = user.mobile  || '';
+      document.getElementById('inp-email').value       = user.email   || '';
+      document.getElementById('inp-telegram').value    = user.telegram_id || '';
+      document.getElementById('inp-city').value        = user.city    || '';
 
-    // Show current location
-    if (user.lat && user.lon) {
-      document.getElementById('loc-status').textContent = 'LAT: ' + user.lat + ' | LON: ' + user.lon;
-      document.getElementById('loc-status').className   = 'loc-status ok';
+      // Show current location
+      if (user.lat && user.lon) {
+        document.getElementById('loc-status').textContent = 'LAT: ' + user.lat + ' | LON: ' + user.lon;
+        document.getElementById('loc-status').className   = 'loc-status ok';
+      }
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main').style.display    = 'block';
+    } catch (err) {
+      document.getElementById('loading').innerHTML = '<div class="loader-text">⚠️ Could not load profile. <a href="javascript:location.reload()" style="color:inherit;text-decoration:underline;">Retry</a></div>';
     }
-
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main').style.display    = 'block';
   }
 
   // ── Update Location ───────────────────────────────────────────
